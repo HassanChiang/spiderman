@@ -24,6 +24,7 @@ import org.eweb4j.spiderman.plugin.ExtensionPoints;
 import org.eweb4j.spiderman.plugin.FetchPoint;
 import org.eweb4j.spiderman.plugin.ParsePoint;
 import org.eweb4j.spiderman.plugin.PluginManager;
+import org.eweb4j.spiderman.plugin.PojoPoint;
 import org.eweb4j.spiderman.plugin.TargetPoint;
 import org.eweb4j.spiderman.plugin.TaskPollPoint;
 import org.eweb4j.spiderman.plugin.TaskPushPoint;
@@ -172,6 +173,11 @@ public class Spiderman {
 				ExtensionPoint<ParsePoint> parsePoint = PluginManager.getExtensionPoint(ExtensionPoints.parse);
 				if (parsePoint != null)
 					site.parsePointImpls = parsePoint.getExtensions();
+				
+				//加载Pojo扩展点实现类
+				ExtensionPoint<PojoPoint> pojoPoint = PluginManager.getExtensionPoint(ExtensionPoints.pojo);
+				if (pojoPoint != null)
+					site.pojoPointImpls = pojoPoint.getExtensions();
 				
 				//加载End扩展点实现类
 				ExtensionPoint<EndPoint> endPoint = PluginManager.getExtensionPoint(ExtensionPoints.end);

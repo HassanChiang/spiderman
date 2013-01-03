@@ -19,6 +19,8 @@ public interface SpiderListener {
 	void onTargetPage(Thread thread, Task task, Page page);
 	
 	void onParse(Thread thread, Task task, Map<String, Object> model, int count);
+	
+	void onPojo(Thread thread, Object pojo, int count);
 
 	void onInfo(Thread thread, String info);
 	

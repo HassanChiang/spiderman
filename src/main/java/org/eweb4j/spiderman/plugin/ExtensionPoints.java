@@ -19,6 +19,7 @@ public class ExtensionPoints {
 	public final static String task_push = "task_push";
 	public final static String target = "target";
 	public final static String parse = "parse";
+	public final static String pojo = "pojo";
 	public final static String end = "end";
 	
 	public static String getPointImplClassName(String point){
@@ -47,14 +48,14 @@ public class ExtensionPoints {
 	}
 	
 	public static boolean contains(String name){
-		return task_poll.equals(name) || begin.equals(name) || fetch.equals(name) || dig.equals(name) || dup_removal.equals(name) || task_sort.equals(name) || task_push.equals(name) || target.equals(name) || parse.equals(name) || end.equals(name) ;
+		return task_poll.equals(name) || begin.equals(name) || fetch.equals(name) || dig.equals(name) || dup_removal.equals(name) || task_sort.equals(name) || task_push.equals(name) || target.equals(name) || parse.equals(name) || pojo.equals(name) || end.equals(name) ;
 	}
 	
 	public static String string(){
-		return "[" + task_poll + ", "+ begin + ", " + fetch + ", " + dig + ", " + dup_removal + ", "+ task_sort +", "+ task_push + ", " +  target + ", " + parse + ", "+ end +"]" ;
+		return "[" + task_poll + ", "+ begin + ", " + fetch + ", " + dig + ", " + dup_removal + ", "+ task_sort +", "+ task_push + ", " +  target + ", " + parse + ", "+ pojo + ", "+ end +"]" ;
 	}
 	
 	public static Collection<String> toArray(){
-		return Arrays.asList(task_poll, begin, fetch, dig, dup_removal, task_sort, task_push, target, parse, end);
+		return Arrays.asList(task_poll, begin, fetch, dig, dup_removal, task_sort, task_push, target, parse, pojo, end);
 	}
 }

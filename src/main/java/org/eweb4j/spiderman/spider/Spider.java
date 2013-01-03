@@ -1,5 +1,6 @@
 package org.eweb4j.spiderman.spider;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.eweb4j.spiderman.plugin.DupRemovalPoint;
 import org.eweb4j.spiderman.plugin.EndPoint;
 import org.eweb4j.spiderman.plugin.FetchPoint;
 import org.eweb4j.spiderman.plugin.ParsePoint;
+import org.eweb4j.spiderman.plugin.PojoPoint;
 import org.eweb4j.spiderman.plugin.TargetPoint;
 import org.eweb4j.spiderman.plugin.TaskPushPoint;
 import org.eweb4j.spiderman.plugin.TaskSortPoint;
@@ -61,7 +63,7 @@ public class Spider implements Runnable{
 				return ;
 			}
 			
-			listener.onInfo(Thread.currentThread(), "fetch content -> " + result);
+			listener.onInfo(Thread.currentThread(), "fetch content from " + task.url + " -> " + result);
 			//扩展点：dig new url 发觉新URL
 			Collection<String> newUrls = null;
 			Collection<DigPoint> digPoints = task.site.digPointImpls;
@@ -74,6 +76,8 @@ public class Spider implements Runnable{
 			
 			if (newUrls != null && !newUrls.isEmpty())
 				this.listener.onNewUrls(Thread.currentThread(), task, newUrls);
+			else
+				newUrls = new ArrayList<String>();
 			
 			//扩展点：dup_removal URL去重,然后变成Task
 			Collection<Task> validTasks = null;
@@ -88,6 +92,9 @@ public class Spider implements Runnable{
 			if (newUrls != null && !newUrls.isEmpty())
 				this.listener.onDupRemoval(Thread.currentThread(), task, validTasks);
 			
+			if (validTasks == null)
+				validTasks = new ArrayList<Task>();
+			
 			//扩展点：task_sort 给任务排序
 			Collection<TaskSortPoint> taskSortPoints = task.site.taskSortPointImpls;
 			if (taskSortPoints != null && !taskSortPoints.isEmpty()){
@@ -95,6 +102,9 @@ public class Spider implements Runnable{
 					validTasks = point.sortTasks(validTasks);
 				}
 			}
+			
+			if (validTasks == null)
+				validTasks = new ArrayList<Task>();
 			
 			//扩展点：task_push 将任务放入队列
 			Collection<TaskPushPoint> taskPushPoints = task.site.taskPushPointImpls;
@@ -144,7 +154,27 @@ public class Spider implements Runnable{
 				listener.onInfo(Thread.currentThread(), " spider stop cause the target model is null");
 				return ;
 			}
+			model.put("task_url", task.url);
+			Counter counter = Spiderman.counters.get(task.site.getName());
+			counter.plus();//统计
+			int count = Spiderman.counters.get(task.site.getName()).getCount();
+			listener.onParse(Thread.currentThread(), task, model, count);
 			
+			//扩展点：pojo 将Map数据映射为POJO
+			String modelCls = target.getModel().getClazz();
+			if (modelCls != null){
+				Class<?> cls = Class.forName(modelCls);
+				Object pojo = null;
+				Collection<PojoPoint> pojoPoints = task.site.pojoPointImpls;
+				if (pojoPoints != null && !pojoPoints.isEmpty()){
+					for (PojoPoint point : pojoPoints){
+						point.init(cls, model, listener);
+						pojo = point.mapping(pojo);
+					}
+				}
+				if (pojo != null)
+					listener.onPojo(Thread.currentThread(), pojo, count);
+			}
 			//扩展点：end 蜘蛛完成工作，该收尾了
 			Collection<EndPoint> endPoints = task.site.endPointImpls;
 			if (endPoints != null && !endPoints.isEmpty()){

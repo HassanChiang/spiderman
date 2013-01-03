@@ -8,6 +8,7 @@ import org.eweb4j.spiderman.plugin.DupRemovalPoint;
 import org.eweb4j.spiderman.plugin.EndPoint;
 import org.eweb4j.spiderman.plugin.FetchPoint;
 import org.eweb4j.spiderman.plugin.ParsePoint;
+import org.eweb4j.spiderman.plugin.PojoPoint;
 import org.eweb4j.spiderman.plugin.TargetPoint;
 import org.eweb4j.spiderman.plugin.TaskPollPoint;
 import org.eweb4j.spiderman.plugin.TaskPushPoint;
@@ -23,6 +24,9 @@ public class Site {
 	
 	@AttrTag
 	private String url;
+	
+	@AttrTag 
+	private String charset;
 	
 	@AttrTag
 	private String enable = "1";
@@ -63,6 +67,8 @@ public class Site {
 	public Collection<ParsePoint> parsePointImpls;
 	@Skip
 	public Collection<EndPoint> endPointImpls;
+	@Skip
+	public Collection<PojoPoint> pojoPointImpls;
 	//-------------------------------------------
 	
 	public String getName() {
@@ -137,4 +143,12 @@ public class Site {
 		this.queueRules = queueRules;
 	}
 
+	public String getCharset() {
+		return this.charset;
+	}
+
+	public void setCharset(String charset) {
+		this.charset = charset;
+	}
+	
 }

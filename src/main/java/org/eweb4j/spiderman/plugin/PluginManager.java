@@ -22,6 +22,11 @@ public class PluginManager {
 	private static Map<String, Collection<Impl>> impls = new HashMap<String, Collection<Impl>>();
 	private final static SpiderIOC ioc = SpiderIOCs.create();
 	
+	/**
+	 * 只用于生成配置文件的时候用
+	 * @date 2013-1-2 下午07:13:11
+	 * @return
+	 */
 	public static Plugin createPlugin(){
 		Plugin plugin = new Plugin();
 		Extensions extensions = new Extensions();
@@ -40,6 +45,13 @@ public class PluginManager {
 		return plugin;
 	}
 	
+	/**
+	 * 加载配置文件。很重要 
+	 * @date 2013-1-2 下午07:13:49
+	 * @param plugins
+	 * @param listener
+	 * @throws Exception
+	 */
 	public static void loadPluginConf(Collection<Plugin> plugins, SpiderListener listener) throws Exception{
 		if (plugins == null || plugins.isEmpty())
 			listener.onInfo(Thread.currentThread(), "there is no plugins to load");
@@ -93,6 +105,13 @@ public class PluginManager {
 		}
 	}
 	
+	/**
+	 * 获取扩展点的所有实现类
+	 * @date 2013-1-2 下午07:14:14
+	 * @param <T>
+	 * @param name
+	 * @return
+	 */
 	public static <T> ExtensionPoint<T> getExtensionPoint(final String name){
 		if (!PluginManager.impls.containsKey(name))
 			return null;

@@ -3,96 +3,42 @@ package org.eweb4j.spiderman.fetcher;
 
 public class Page {
 
-	/**
-	 * The URL of this page.
-	 */
-	protected String url;
-
-	/**
-	 * The content of this page in binary format.
-	 */
-	protected byte[] contentData;
+	private String url;
+	private String content;
+	private String contentType;
+	private String encoding;
+	private String charset;
 	
-	protected String content;
-
-	/**
-	 * The ContentType of this page. For example: "text/html; charset=UTF-8"
-	 */
-	protected String contentType;
-
-	/**
-	 * The encoding of the content. For example: "gzip"
-	 */
-	protected String contentEncoding;
-
-	/**
-	 * The charset of the content. For example: "UTF-8"
-	 */
-	protected String contentCharset;
-
-	public Page(String url) {
-		this.url = url;
-	}
-
 	public String getUrl() {
-		return url;
+		return this.url;
 	}
-
+	
 	public void setUrl(String url) {
 		this.url = url;
 	}
-
-	/**
-	 * Returns the content of this page in binary format.
-	 */
-//	public byte[] getContentData() {
-//		return contentData;
-//	}
-	
-	public void SetContent(String content){
-		this.content = content;
-	}
-	
-	public String getContent(){
+	public String getContent() {
 		return this.content;
 	}
-
-//	public void setContentData(byte[] contentData) {
-//		this.contentData = contentData;
-//	}
-
-	/**
-	 * Returns the ContentType of this page. For example:
-	 * "text/html; charset=UTF-8"
-	 */
-	public String getContentType() {
-		return contentType;
+	public void setContent(String content) {
+		this.content = content;
 	}
-
+	public String getContentType() {
+		return this.contentType;
+	}
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
 	}
-
-	/**
-	 * Returns the encoding of the content. For example: "gzip"
-	 */
-	public String getContentEncoding() {
-		return contentEncoding;
+	public String getEncoding() {
+		return this.encoding;
 	}
-
-	public void setContentEncoding(String contentEncoding) {
-		this.contentEncoding = contentEncoding;
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
 	}
-
-	/**
-	 * Returns the charset of the content. For example: "UTF-8"
-	 */
-	public String getContentCharset() {
-		return contentCharset;
+	public String getCharset() {
+		return this.charset;
 	}
-
-	public void setContentCharset(String contentCharset) {
-		this.contentCharset = contentCharset;
+	public void setCharset(String charset) {
+		this.charset = charset;
 	}
-
+	
 }
