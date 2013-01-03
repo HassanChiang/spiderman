@@ -2,7 +2,7 @@ package org.eweb4j.spiderman.spider;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eweb4j.spiderman.fetcher.FetchResult;
@@ -122,7 +122,6 @@ public class Spider implements Runnable{
 				listener.onInfo(Thread.currentThread(), " spider stop cause the fetch result.page is null");
 				return ;
 			}
-			
 			//扩展点：target 确认当前的Task.url符不符合目标期望
 			Target target = null;
 			Collection<TargetPoint> targetPoints = task.site.targetPointImpls;
@@ -141,47 +140,47 @@ public class Spider implements Runnable{
 			this.listener.onTargetPage(Thread.currentThread(), task, page);
 			
 			//扩展点：parse 把已确认好的目标页面解析成为Map对象
-			Map<String, Object> model = null;
+			List<Map<String, Object>> models = null;
 			Collection<ParsePoint> parsePoints = task.site.parsePointImpls;
 			if (parsePoints != null && !parsePoints.isEmpty()){
 				for (ParsePoint point : parsePoints){
 					point.init(target, page, listener);
-					model = point.parse(model);
+					models = point.parse(models);
 				}
 			}
 			
-			if (model == null) {
-				listener.onInfo(Thread.currentThread(), " spider stop cause the target model is null");
+			if (models == null) {
+				listener.onInfo(Thread.currentThread(), " spider stop cause the target models is null");
 				return ;
 			}
-			model.put("task_url", task.url);
+			for (Map<String,Object> model : models)
+				model.put("task_url", task.url);
 			Counter counter = Spiderman.counters.get(task.site.getName());
 			counter.plus();//统计
 			int count = Spiderman.counters.get(task.site.getName()).getCount();
-			listener.onParse(Thread.currentThread(), task, model, count);
+			listener.onParse(Thread.currentThread(), task, models, count);
 			
 			//扩展点：pojo 将Map数据映射为POJO
 			String modelCls = target.getModel().getClazz();
 			if (modelCls != null){
 				Class<?> cls = Class.forName(modelCls);
-				Object pojo = null;
+				List<Object> pojos = null;
 				Collection<PojoPoint> pojoPoints = task.site.pojoPointImpls;
 				if (pojoPoints != null && !pojoPoints.isEmpty()){
 					for (PojoPoint point : pojoPoints){
-						point.init(cls, model, listener);
-						pojo = point.mapping(pojo);
+						point.init(cls, models, listener);
+						pojos = point.mapping(pojos);
 					}
 				}
-				if (pojo != null)
-					listener.onPojo(Thread.currentThread(), pojo, count);
+				if (pojos != null)
+					listener.onPojo(Thread.currentThread(), pojos, count);
 			}
 			//扩展点：end 蜘蛛完成工作，该收尾了
 			Collection<EndPoint> endPoints = task.site.endPointImpls;
 			if (endPoints != null && !endPoints.isEmpty()){
-				Map<String, Object> dataMap = new HashMap<String,Object>();
 				for (EndPoint point : endPoints){
-					point.init(task, model, listener);
-					dataMap = point.complete(dataMap);
+					point.init(task, models, listener);
+					models = point.complete(models);
 				}
 			}
 			

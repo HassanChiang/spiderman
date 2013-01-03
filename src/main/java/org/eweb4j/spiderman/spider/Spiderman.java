@@ -97,6 +97,12 @@ public class Spiderman {
 		
 		sites = new ArrayList<Site>(files.length);
 		for (File file : files){
+			if (!file.exists())
+				continue;
+			if (!file.isFile())
+				continue;
+			if (!file.getName().endsWith(".xml"))
+				continue;
 			XMLReader reader = BeanXMLUtil.getBeanXMLReader(file);
 			reader.setBeanName("site");
 			reader.setClass("site", Site.class);

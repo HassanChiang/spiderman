@@ -1,6 +1,7 @@
 package org.eweb4j.spiderman.spider;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.eweb4j.spiderman.fetcher.Page;
@@ -18,9 +19,9 @@ public interface SpiderListener {
 	
 	void onTargetPage(Thread thread, Task task, Page page);
 	
-	void onParse(Thread thread, Task task, Map<String, Object> model, int count);
+	void onParse(Thread thread, Task task, List<Map<String, Object>> models, int count);
 	
-	void onPojo(Thread thread, Object pojo, int count);
+	void onPojo(Thread thread, List<Object> pojos, int count);
 
 	void onInfo(Thread thread, String info);
 	

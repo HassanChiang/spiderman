@@ -32,5 +32,10 @@ public class FetchResult {
 	public void setPage(Page page) {
 		this.page = page;
 	}
+	@Override
+	public String toString() {
+		return "FetchResult [statusCode=" + this.statusCode + ", fetchedUrl="
+				+ this.fetchedUrl + ", movedToUrl=" + this.movedToUrl + "]";
+	}
 
 }
