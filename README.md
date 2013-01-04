@@ -1,6 +1,7 @@
 Spiderman - Java开源Web数据抽取工具
 ==========================================
-    Spiderman 是一个Java开源Web数据抽取工具。它能够收集指定的Web页面并从这些页面中提取有用的数据。Spiderman主要是运用了像XPath,正则表达式等这些技术来实数据抽取。
+    Spiderman 是一个Java开源Web数据抽取工具。它能够收集指定的Web页面并从这些页面中提取有用的数据。
+    Spiderman主要是运用了像XPath,正则表达式等这些技术来实数据抽取。
     
 它包含了两部分（二者缺一不可）：
 * [内核https://github.com/laiweiwei/spiderman](https://github.com/laiweiwei/spiderman) 
