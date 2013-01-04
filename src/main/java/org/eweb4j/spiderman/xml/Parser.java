@@ -12,6 +12,9 @@ public class Parser {
 	
 	@AttrTag
 	private String regex;
+	
+	@AttrTag
+	private String el;
 
 	public String getXpath() {
 		return xpath;
@@ -35,6 +38,14 @@ public class Parser {
 
 	public void setRegex(String regex) {
 		this.regex = regex;
+	}
+
+	public String getEl() {
+		return this.el;
+	}
+
+	public void setEl(String el) {
+		this.el = el;
 	}
 
 }
