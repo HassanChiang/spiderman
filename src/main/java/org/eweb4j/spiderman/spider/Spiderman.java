@@ -62,6 +62,7 @@ public class Spiderman {
 			initSites();
 			initPool();
 		} catch (Exception e){
+			listener.onInfo(Thread.currentThread(),null, "Spiderman init error.");
 			listener.onError(Thread.currentThread(), null, "Spiderman init error.", e);
 		}
 		
