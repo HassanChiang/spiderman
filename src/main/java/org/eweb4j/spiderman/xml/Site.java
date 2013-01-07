@@ -2,6 +2,7 @@ package org.eweb4j.spiderman.xml;
 
 import java.util.Collection;
 
+import org.eweb4j.spiderman.fetcher.PageFetcher;
 import org.eweb4j.spiderman.plugin.BeginPoint;
 import org.eweb4j.spiderman.plugin.DigPoint;
 import org.eweb4j.spiderman.plugin.DupRemovalPoint;
@@ -41,6 +42,10 @@ public class Site {
 	@AttrTag
 	private String waitQueue = "1s";
 	
+	private Headers headers = new Headers();
+	
+	private Cookies cookies = new Cookies();
+	
 	private Urls queueRules;
 	
 	private Targets targets ;
@@ -48,6 +53,8 @@ public class Site {
 	private Plugins plugins;
 	
 	//------------------------------------------
+	@Skip
+	public PageFetcher fetcher;//每个网站都有属于自己的一个抓取器
 	@Skip
 	public Counter counter;//针对本网站已完成的任务数量
 	//------------------------------------------
@@ -154,6 +161,22 @@ public class Site {
 
 	public void setCharset(String charset) {
 		this.charset = charset;
+	}
+
+	public Headers getHeaders() {
+		return this.headers;
+	}
+
+	public void setHeaders(Headers headers) {
+		this.headers = headers;
+	}
+
+	public Cookies getCookies() {
+		return this.cookies;
+	}
+
+	public void setCookies(Cookies cookies) {
+		this.cookies = cookies;
 	}
 	
 }
