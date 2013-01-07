@@ -13,6 +13,7 @@ import org.eweb4j.spiderman.plugin.TargetPoint;
 import org.eweb4j.spiderman.plugin.TaskPollPoint;
 import org.eweb4j.spiderman.plugin.TaskPushPoint;
 import org.eweb4j.spiderman.plugin.TaskSortPoint;
+import org.eweb4j.spiderman.spider.Counter;
 import org.eweb4j.util.xml.AttrTag;
 import org.eweb4j.util.xml.Skip;
 
@@ -46,6 +47,10 @@ public class Site {
 	
 	private Plugins plugins;
 	
+	//------------------------------------------
+	@Skip
+	public Counter counter;//针对本网站已完成的任务数量
+	//------------------------------------------
 	//--------------扩展点-----------------------
 	@Skip
 	public Collection<TaskPollPoint> taskPollPointImpls;

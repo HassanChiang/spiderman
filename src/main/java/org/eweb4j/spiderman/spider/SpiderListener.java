@@ -19,11 +19,11 @@ public interface SpiderListener {
 	
 	void onTargetPage(Thread thread, Task task, Page page);
 	
-	void onParse(Thread thread, Task task, List<Map<String, Object>> models, int count);
+	void onParse(Thread thread, Task task, List<Map<String, Object>> models);
 	
-	void onPojo(Thread thread, List<Object> pojos, int count);
+	void onPojo(Thread thread, Task task, List<Object> pojos);
 
-	void onInfo(Thread thread, String info);
+	void onInfo(Thread thread, Task task, String info);
 	
-	void onError(Thread thread, String err, Exception e);
+	void onError(Thread thread, Task task, String err, Exception e);
 }

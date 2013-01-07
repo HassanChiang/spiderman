@@ -14,7 +14,7 @@ public class Parser {
 	private String regex;
 	
 	@AttrTag
-	private String el;
+	private String exp;
 
 	public String getXpath() {
 		return xpath;
@@ -40,12 +40,12 @@ public class Parser {
 		this.regex = regex;
 	}
 
-	public String getEl() {
-		return this.el;
+	public String getExp() {
+		return this.exp;
 	}
 
-	public void setEl(String el) {
-		this.el = el;
+	public void setExp(String exp) {
+		this.exp = exp;
 	}
 
 }

@@ -54,7 +54,7 @@ public class PluginManager {
 	 */
 	public static void loadPluginConf(Collection<Plugin> plugins, SpiderListener listener) throws Exception{
 		if (plugins == null || plugins.isEmpty())
-			listener.onInfo(Thread.currentThread(), "there is no plugins to load");
+			listener.onInfo(Thread.currentThread(), null, "there is no plugins to load");
 		
 		Comparator<Impl> implComp = new Comparator<Impl>() {
 			public int compare(Impl o1, Impl o2) {
@@ -68,30 +68,30 @@ public class PluginManager {
 		
 		for (Plugin plugin : plugins){
 			if (!"1".equals(plugin.getEnable())){ 
-				listener.onInfo(Thread.currentThread(), "skip plugin["+plugin.getName()+"] cause it is not enable");
+				listener.onInfo(Thread.currentThread(), null, "skip plugin["+plugin.getName()+"] cause it is not enable");
 				continue;
 			}
 			
 			Collection<Extension> extensions = plugin.getExtensions().getExtension();
 			if (extensions == null || extensions.isEmpty()){
-				listener.onInfo(Thread.currentThread(), "plugin["+plugin.getName()+"] has no extentions to load");
+				listener.onInfo(Thread.currentThread(), null, "plugin["+plugin.getName()+"] has no extentions to load");
 				continue;
 			}
 			
-			listener.onInfo(Thread.currentThread(), "plugin info -> \n"+ plugin);
+			listener.onInfo(Thread.currentThread(), null, "plugin info -> \n"+ plugin);
 			
 			for (Extension ext : extensions){
 				String point = ext.getPoint();
 				if (!ExtensionPoints.contains(point)){
 					String err = "plugin["+plugin.getName()+"] extension-point["+point+"] not found please confim the point value must be in "+ExtensionPoints.string();
 					Exception e = new Exception(err);
-					listener.onError(Thread.currentThread(), err, e);
+					listener.onError(Thread.currentThread(), null, err, e);
 					throw e;
 				}
 				
 				List<Impl> impls =  ext.getImpl();
 				if (impls == null || impls.isEmpty()){
-					listener.onInfo(Thread.currentThread(), "skip plugin["+plugin.getName()+"] extension-point["+point+"] cause it has no impls to load");
+					listener.onInfo(Thread.currentThread(), null, "skip plugin["+plugin.getName()+"] extension-point["+point+"] cause it has no impls to load");
 					continue;
 				}
 				
@@ -100,7 +100,7 @@ public class PluginManager {
 				
 				PluginManager.impls.put(point, impls);
 				
-				listener.onInfo(Thread.currentThread(), "plugin["+plugin.getName()+"] extension-point["+point+"] loading ok ");
+				listener.onInfo(Thread.currentThread(), null, "plugin["+plugin.getName()+"] extension-point["+point+"] loading ok ");
 			}
 		}
 	}

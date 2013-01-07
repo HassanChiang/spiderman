@@ -3,16 +3,13 @@ package org.eweb4j.spiderman.spider;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.eweb4j.config.EWeb4JConfig;
 import org.eweb4j.spiderman.infra.SpiderIOC;
 import org.eweb4j.spiderman.infra.SpiderIOCs;
 import org.eweb4j.spiderman.plugin.BeginPoint;
@@ -42,35 +39,66 @@ import org.eweb4j.util.xml.XMLWriter;
 
 public class Spiderman {
 
-	public final static SpiderIOC ioc = SpiderIOCs.create();
-	public final static Map<String, Counter> counters = new Hashtable<String, Counter>();
-	private static ExecutorService pool = null;
-	private static Collection<Site> sites = null;
-	private static SpiderListener listener = null;
+	public final SpiderIOC ioc = SpiderIOCs.create();
+	private ExecutorService pool = null;
+	private Collection<Site> sites = null;
+	private SpiderListener listener = null;
 	
-	public static void init(SpiderListener _listener) throws Exception{
-		listener = _listener;
-		String err = EWeb4JConfig.start();
-		if (err != null)
-			throw new Exception(err);
-		
-		loadPlugins();
-		initSites();
-		initPool();
+	public final static Spiderman me() {
+		return new Spiderman();
 	}
 	
-	public static void start() {
+	public Spiderman init() {
+		return init(null);
+	}
+	
+	public Spiderman init(SpiderListener _listener) {
+		listener = _listener;
+		if (listener == null)
+			listener = new SpiderListenerAdaptor();
+		
+		try {
+			loadPlugins();
+			initSites();
+			initPool();
+		} catch (Exception e){
+			listener.onError(Thread.currentThread(), null, "Spiderman init error.", e);
+		}
+		
+		return this;
+	}
+	
+	public Spiderman startup() {
 		for (Site site : sites){
 			pool.execute(new Spiderman._Executor(site));
-			listener.onInfo(Thread.currentThread(), "spider tasks of " + site.getName() + " start... ");
+			listener.onInfo(Thread.currentThread(), null, "spider tasks of " + site.getName() + " start... ");
 		}
+		
+		return this;
 	}
 	
-	public static void stop(){
+	public Spiderman keep(String time){
+		return keep(CommonUtil.toSeconds(time).longValue()*1000);
+	}
+	
+	public Spiderman keep(long time){
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+		}
+		shutdownNow();
+		return this;
+	}
+	
+	public void shutdown(){
+		pool.shutdown();
+	}
+	
+	public void shutdownNow(){
 		pool.shutdownNow();
 	}
 	
-	private static void loadPlugins() throws Exception{
+	private void loadPlugins() throws Exception{
 		File siteFolder = new File(Settings.website_xml_folder());
 		if (!siteFolder.exists())
 			throw new Exception("can not found WebSites folder -> " + siteFolder.getAbsolutePath());
@@ -115,7 +143,7 @@ public class Spiderman {
 		}
 	}
 	
-	private static void initSites() throws Exception{
+	private void initSites() throws Exception{
 		for (Site site : sites){
 			if (site.getName() == null || site.getName().trim().length() == 0)
 				throw new Exception("site name required");
@@ -129,7 +157,7 @@ public class Spiderman {
 				throw new Exception("can not get any url target of site -> " + site.getName());
 			
 			//---------------------插件初始化开始----------------------------
-			listener.onInfo(Thread.currentThread(), "plugins loading begin...");
+			listener.onInfo(Thread.currentThread(), null, "plugins loading begin...");
 			Collection<Plugin> plugins = site.getPlugins().getPlugin();
 			//加载网站插件配置
 			try {
@@ -195,22 +223,22 @@ public class Spiderman {
 			}
 			
 			//初始化网站目标Model计数器
-			counters.put(site.getName(), new Counter());
+			site.counter = new Counter();
 		}
 	}
 	
-	private static void initPool(){
+	private void initPool(){
 		if (pool == null){
 			int size = sites.size();
 			pool = new ThreadPoolExecutor(size, size,
                     60, TimeUnit.SECONDS,
                     new LinkedBlockingQueue<Runnable>());
 			
-			listener.onInfo(Thread.currentThread(), "init thread pool size->"+size+" success ");
+			listener.onInfo(Thread.currentThread(), null, "init thread pool size->"+size+" success ");
 		}
 	}
 	
-	private static class _Executor implements Runnable{
+	private class _Executor implements Runnable{
 		private Site site = null;
 		private ExecutorService pool = null;
 		
@@ -218,7 +246,7 @@ public class Spiderman {
 			this.site = site;
 			String strSize = site.getThread();
 			int size = Integer.parseInt(strSize);
-			listener.onInfo(Thread.currentThread(), "site thread size -> " + size);
+			listener.onInfo(Thread.currentThread(), null, "site thread size -> " + size);
 			if (size > 0)
 				pool = new ThreadPoolExecutor(size, size,
 	                    60, TimeUnit.SECONDS,
@@ -249,9 +277,14 @@ public class Spiderman {
 					
 					if (task == null){
 						long wait = CommonUtil.toSeconds(site.getWaitQueue()).longValue();
-						listener.onInfo(Thread.currentThread(), "queue empty wait for -> " + wait + " seconds");
-						if (wait > 0)
-							Thread.sleep(wait * 1000);
+						listener.onInfo(Thread.currentThread(), null, "queue empty wait for -> " + wait + " seconds");
+						if (wait > 0) {
+							try {
+								Thread.sleep(wait * 1000);
+							} catch (Exception e){
+								
+							}
+						}
 						continue;
 					}
 					
@@ -260,13 +293,13 @@ public class Spiderman {
 					pool.execute(spider);
 					
 				} catch (Exception e) {
-					listener.onError(Thread.currentThread(), e.toString(), e);
+					listener.onError(Thread.currentThread(), null, e.toString(), e);
 				}finally{
 					long cost = System.currentTimeMillis() - start;
 					if (cost >= times){ 
 						// 运行种子任务
 						feedSpider.run();
-						listener.onInfo(Thread.currentThread(), " shcedule FeedSpider per "+times+", now cost time ->"+cost);
+						listener.onInfo(Thread.currentThread(), null, " shcedule FeedSpider per "+times+", now cost time ->"+cost);
 						start = System.currentTimeMillis();//重新计时
 					}
 				}

@@ -59,11 +59,11 @@ public class Spider implements Runnable{
 			}
 			
 			if (result == null) {
-				listener.onInfo(Thread.currentThread(), " spider stop cause the fetch result of task["+task+"] is null");
+				listener.onInfo(Thread.currentThread(), task, " spider stop cause the fetch result of task["+task+"] is null");
 				return ;
 			}
 			
-			listener.onInfo(Thread.currentThread(), "fetch content from " + task.url + " -> " + result);
+			listener.onInfo(Thread.currentThread(), task, "fetch content from " + task.url + " -> " + result);
 			//扩展点：dig new url 发觉新URL
 			Collection<String> newUrls = null;
 			Collection<DigPoint> digPoints = task.site.digPointImpls;
@@ -119,7 +119,7 @@ public class Spider implements Runnable{
 			
 			Page page = result.getPage();
 			if (page == null) {
-				listener.onInfo(Thread.currentThread(), " spider stop cause the fetch result.page is null");
+				listener.onInfo(Thread.currentThread(), task, " spider stop cause the fetch result.page is null");
 				return ;
 			}
 			//扩展点：target 确认当前的Task.url符不符合目标期望
@@ -133,7 +133,7 @@ public class Spider implements Runnable{
 			}
 			
 			if (target == null) {
-				listener.onInfo(Thread.currentThread(), " spider stop cause the task is not the target");
+				listener.onInfo(Thread.currentThread(), task, " spider stop cause the task is not the target");
 				return ;
 			}
 			
@@ -144,21 +144,21 @@ public class Spider implements Runnable{
 			Collection<ParsePoint> parsePoints = task.site.parsePointImpls;
 			if (parsePoints != null && !parsePoints.isEmpty()){
 				for (ParsePoint point : parsePoints){
-					point.init(target, page, listener);
+					point.init(task, target, page, listener);
 					models = point.parse(models);
 				}
 			}
 			
 			if (models == null) {
-				listener.onInfo(Thread.currentThread(), " spider stop cause the target models is null");
+				listener.onInfo(Thread.currentThread(), task, " spider stop cause the target models is null");
 				return ;
 			}
 			for (Map<String,Object> model : models)
 				model.put("task_url", task.url);
-			Counter counter = Spiderman.counters.get(task.site.getName());
-			counter.plus();//统计
-			int count = Spiderman.counters.get(task.site.getName()).getCount();
-			listener.onParse(Thread.currentThread(), task, models, count);
+			
+			// 统计任务完成数+1
+			this.task.site.counter.plus();
+			listener.onParse(Thread.currentThread(), task, models);
 			
 			//扩展点：pojo 将Map数据映射为POJO
 			String modelCls = target.getModel().getClazz();
@@ -173,7 +173,7 @@ public class Spider implements Runnable{
 					}
 				}
 				if (pojos != null)
-					listener.onPojo(Thread.currentThread(), pojos, count);
+					listener.onPojo(Thread.currentThread(), task, pojos);
 			}
 			//扩展点：end 蜘蛛完成工作，该收尾了
 			Collection<EndPoint> endPoints = task.site.endPointImpls;
@@ -185,7 +185,7 @@ public class Spider implements Runnable{
 			}
 			
 		} catch(Exception e){
-			this.listener.onError(Thread.currentThread(), e.toString(), e);
+			this.listener.onError(Thread.currentThread(), task, e.toString(), e);
 		}
 	}
 
