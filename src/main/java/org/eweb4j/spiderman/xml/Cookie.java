@@ -13,6 +13,12 @@ public class Cookie {
 	
 	@AttrTag
 	private String value;
+	
+	@AttrTag
+	private String host;
+	
+	@AttrTag
+	private String path;
 
 	public String getName() {
 		return this.name;
@@ -28,6 +34,22 @@ public class Cookie {
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	public String getHost() {
+		return this.host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String getPath() {
+		return this.path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 	
 }
