@@ -58,8 +58,8 @@ public class Spider implements Runnable{
 				}
 			}
 			
-			if (result == null) {
-				listener.onInfo(Thread.currentThread(), task, " spider stop cause the fetch result of task["+task+"] is null");
+			if (result == null || result.getPage() == null || result.getPage().getContent() == null || result.getPage().getContent().trim().length() == 0) {
+				listener.onInfo(Thread.currentThread(), task, " spider stop cause the fetch result->+"+result+" of task["+task+"] is null");
 				return ;
 			}
 			

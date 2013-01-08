@@ -10,6 +10,9 @@ public class Field {
 	@AttrTag
 	private String isArray;
 	
+	@AttrTag
+	private String isTrim;//是否去掉前后的空格字符
+	
 	private Parser parser;
 
 	public String getName() {
@@ -35,5 +38,12 @@ public class Field {
 	public void setParser(Parser parser) {
 		this.parser = parser;
 	}
-	
+
+	public String getIsTrim() {
+		return this.isTrim;
+	}
+
+	public void setIsTrim(String isTrim) {
+		this.isTrim = isTrim;
+	}
 }

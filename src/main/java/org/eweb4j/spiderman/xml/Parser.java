@@ -16,6 +16,9 @@ public class Parser {
 	@AttrTag
 	private String exp;
 
+	@AttrTag
+	private String index;
+	
 	public String getXpath() {
 		return xpath;
 	}
@@ -46,6 +49,14 @@ public class Parser {
 
 	public void setExp(String exp) {
 		this.exp = exp;
+	}
+
+	public String getIndex() {
+		return this.index;
+	}
+
+	public void setIndex(String index) {
+		this.index = index;
 	}
 
 }
