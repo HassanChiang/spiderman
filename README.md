@@ -19,7 +19,7 @@ Spiderman - Java开源Web数据抽取工具
 * 然后，打开目标页面，分析页面的HTML结构，得到你想要数据的XPath，具体XPath怎么获取请看下文。
 * 最后，在一个xml配置文件里填写好参数，运行Spiderman吧！
 
-这里有个抓取网易新闻案例
+这里有很多例子提供参考
 ------------------------
 * [spiderman-sample](https://github.com/laiweiwei/spiderman-sample)
 
