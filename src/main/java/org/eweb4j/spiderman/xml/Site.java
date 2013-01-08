@@ -22,35 +22,38 @@ import org.eweb4j.util.xml.Skip;
 public class Site {
 
 	@AttrTag
-	private String name;
+	private String name;//网站名
 	
 	@AttrTag
-	private String url;
+	private String url;//网站url
+	
+	@AttrTag
+	private String reqDelay = "200";//每个请求的延迟时间
 	
 	@AttrTag 
-	private String charset;
+	private String charset;//网站内容字符集
 	
 	@AttrTag
-	private String enable = "1";
+	private String enable = "1";//是否开启本网站的抓取
 	
 	@AttrTag
-	private String schedule = "1h";
+	private String schedule = "1h";//每隔多长时间重头爬起
 	
 	@AttrTag
-	private String thread = "1";
+	private String thread = "1";//线程数
 	
 	@AttrTag
-	private String waitQueue = "1s";
+	private String waitQueue = "1s";//当队列空的时候爬虫等待时间
 	
-	private Headers headers = new Headers();
+	private Headers headers = new Headers();//HTTP头
 	
-	private Cookies cookies = new Cookies();
+	private Cookies cookies = new Cookies();//HTTP Cookie
 	
-	private Urls queueRules;
+	private Urls queueRules;//允许进入抓取队列的url规则
 	
-	private Targets targets ;
+	private Targets targets ;//抓取目标
 	
-	private Plugins plugins;
+	private Plugins plugins;//插件
 	
 	//------------------------------------------
 	@Skip
@@ -105,6 +108,14 @@ public class Site {
 
 	public void setEnable(String enable) {
 		this.enable = enable;
+	}
+
+	public String getReqDelay() {
+		return this.reqDelay;
+	}
+
+	public void setReqDelay(String reqDelay) {
+		this.reqDelay = reqDelay;
 	}
 
 	public String getSchedule() {
