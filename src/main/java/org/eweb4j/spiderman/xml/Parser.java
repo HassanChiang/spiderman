@@ -2,8 +2,14 @@ package org.eweb4j.spiderman.xml;
 
 import org.eweb4j.util.xml.AttrTag;
 
-public class Parser {
 
+/**
+ * TODO
+ * @author weiwei l.weiwei@163.com
+ * @date 2013-1-9 下午01:45:36
+ */
+public class Parser {
+	
 	@AttrTag
 	private String xpath;
 	
@@ -11,16 +17,13 @@ public class Parser {
 	private String attribute;
 	
 	@AttrTag
-	private String regex;
-	
-	@AttrTag
 	private String exp;
-
-	@AttrTag
-	private String index;
 	
+	@AttrTag
+	private String regex;
+
 	public String getXpath() {
-		return xpath;
+		return this.xpath;
 	}
 
 	public void setXpath(String xpath) {
@@ -28,19 +31,11 @@ public class Parser {
 	}
 
 	public String getAttribute() {
-		return attribute;
+		return this.attribute;
 	}
 
 	public void setAttribute(String attribute) {
 		this.attribute = attribute;
-	}
-	
-	public String getRegex() {
-		return regex;
-	}
-
-	public void setRegex(String regex) {
-		this.regex = regex;
 	}
 
 	public String getExp() {
@@ -51,12 +46,17 @@ public class Parser {
 		this.exp = exp;
 	}
 
-	public String getIndex() {
-		return this.index;
+	public String getRegex() {
+		return this.regex;
 	}
 
-	public void setIndex(String index) {
-		this.index = index;
+	public void setRegex(String regex) {
+		this.regex = regex;
 	}
 
+	@Override
+	public String toString() {
+		return "Parser [xpath=" + this.xpath + ", attribute=" + this.attribute
+				+ ", exp=" + this.exp + ", regex=" + this.regex + "]";
+	}
 }

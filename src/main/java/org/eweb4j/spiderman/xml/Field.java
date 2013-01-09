@@ -13,7 +13,7 @@ public class Field {
 	@AttrTag
 	private String isTrim;//是否去掉前后的空格字符
 	
-	private Parser parser;
+	private Parsers parsers;
 
 	public String getName() {
 		return name;
@@ -31,12 +31,12 @@ public class Field {
 		this.isArray = isArray;
 	}
 
-	public Parser getParser() {
-		return parser;
+	public Parsers getParsers() {
+		return parsers;
 	}
 
-	public void setParser(Parser parser) {
-		this.parser = parser;
+	public void setParsers(Parsers parsers) {
+		this.parsers = parsers;
 	}
 
 	public String getIsTrim() {
