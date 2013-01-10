@@ -28,8 +28,8 @@ import org.eweb4j.spiderman.xml.Target;
  */
 public class Spider implements Runnable{
 
-	private Task task;
-	private SpiderListener listener;
+	public Task task;
+	public SpiderListener listener;
 	
 	public void init(Task task, SpiderListener listener) {
 		this.task = task;
@@ -107,12 +107,7 @@ public class Spider implements Runnable{
 				validTasks = new ArrayList<Task>();
 			
 			//扩展点：task_push 将任务放入队列
-			Collection<TaskPushPoint> taskPushPoints = task.site.taskPushPointImpls;
-			if (taskPushPoints != null && !taskPushPoints.isEmpty()){
-				for (TaskPushPoint point : taskPushPoints){
-					validTasks = point.pushTask(validTasks);
-				}
-			}
+			validTasks = pushTask(validTasks);
 			
 			if (validTasks != null && !validTasks.isEmpty())
 				this.listener.onNewTasks(Thread.currentThread(), task, validTasks);
@@ -184,9 +179,20 @@ public class Spider implements Runnable{
 				}
 			}
 			
-		} catch(Exception e){
-			this.listener.onError(Thread.currentThread(), task, e.toString(), e);
+		} catch(Throwable e){
+			this.listener.onError(Thread.currentThread(), task, e.toString(), new Exception(e));
+			e.printStackTrace();
 		}
+	}
+
+	public Collection<Task> pushTask(Collection<Task> validTasks) throws Exception {
+		Collection<TaskPushPoint> taskPushPoints = task.site.taskPushPointImpls;
+		if (taskPushPoints != null && !taskPushPoints.isEmpty()){
+			for (TaskPushPoint point : taskPushPoints){
+				validTasks = point.pushTask(validTasks);
+			}
+		}
+		return validTasks;
 	}
 
 }

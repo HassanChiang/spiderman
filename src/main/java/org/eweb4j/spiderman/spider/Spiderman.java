@@ -2,11 +2,14 @@ package org.eweb4j.spiderman.spider;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -231,9 +234,7 @@ public class Spiderman {
 	private void initPool(){
 		if (pool == null){
 			int size = sites.size();
-			pool = new ThreadPoolExecutor(size, size,
-                    60, TimeUnit.SECONDS,
-                    new LinkedBlockingQueue<Runnable>());
+			pool = Executors.newFixedThreadPool(size);
 			
 			listener.onInfo(Thread.currentThread(), null, "init thread pool size->"+size+" success ");
 		}
@@ -248,12 +249,32 @@ public class Spiderman {
 			String strSize = site.getThread();
 			int size = Integer.parseInt(strSize);
 			listener.onInfo(Thread.currentThread(), null, "site thread size -> " + size);
+			RejectedExecutionHandler rejectedHandler = new RejectedExecutionHandler() {
+				public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+					//拿到被弹出来的爬虫引用
+					Spider spider = (Spider)r;
+					try {
+						//将该爬虫的任务 task 放回队列
+						spider.pushTask(Arrays.asList(spider.task));
+						String info = "repush the task->"+spider.task+" to the Queue.";
+						spider.listener.onError(Thread.currentThread(), spider.task, info, new Exception(info));
+					} catch (Exception e) {
+						String err = "could not repush the task to the Queue. cause -> " + e.toString();
+						spider.listener.onError(Thread.currentThread(), spider.task, err, e);
+					}
+				}
+			};
+			
 			if (size > 0)
 				pool = new ThreadPoolExecutor(size, size,
-	                    60, TimeUnit.SECONDS,
-	                    new LinkedBlockingQueue<Runnable>());
+						60L, TimeUnit.SECONDS,
+	                    new LinkedBlockingQueue<Runnable>(),
+	                    rejectedHandler);
 			else
-				pool = Executors.newCachedThreadPool();
+				pool = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+	                    60L, TimeUnit.SECONDS,
+	                    new SynchronousQueue<Runnable>(),
+	                    rejectedHandler);
 		}
 		
 		public void run() {
