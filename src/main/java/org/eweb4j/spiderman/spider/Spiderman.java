@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
@@ -234,7 +233,9 @@ public class Spiderman {
 	private void initPool(){
 		if (pool == null){
 			int size = sites.size();
-			pool = Executors.newFixedThreadPool(size);
+			pool = new ThreadPoolExecutor(size, size,
+                    60L, TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<Runnable>());
 			
 			listener.onInfo(Thread.currentThread(), null, "init thread pool size->"+size+" success ");
 		}
