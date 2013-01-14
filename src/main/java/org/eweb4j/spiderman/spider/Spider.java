@@ -63,7 +63,8 @@ public class Spider implements Runnable{
 				return ;
 			}
 			
-			listener.onInfo(Thread.currentThread(), task, "fetch content from " + task.url + " -> " + result);
+			listener.onFetch(Thread.currentThread(), task, result);
+			
 			//扩展点：dig new url 发觉新URL
 			Collection<String> newUrls = null;
 			Collection<DigPoint> digPoints = task.site.digPointImpls;
@@ -128,7 +129,7 @@ public class Spider implements Runnable{
 			}
 			
 			if (target == null) {
-				listener.onInfo(Thread.currentThread(), task, " spider stop cause the task is not the target");
+//				listener.onInfo(Thread.currentThread(), task, " spider stop cause the task is not the target");
 				return ;
 			}
 			
@@ -144,10 +145,9 @@ public class Spider implements Runnable{
 				}
 			}
 			
-			if (models == null) {
-				listener.onInfo(Thread.currentThread(), task, " spider stop cause the target models is null");
+			if (models == null) 
 				return ;
-			}
+			
 			for (Map<String,Object> model : models)
 				model.put("task_url", task.url);
 			
@@ -157,19 +157,20 @@ public class Spider implements Runnable{
 			
 			//扩展点：pojo 将Map数据映射为POJO
 			String modelCls = target.getModel().getClazz();
-			if (modelCls != null){
-				Class<?> cls = Class.forName(modelCls);
-				List<Object> pojos = null;
-				Collection<PojoPoint> pojoPoints = task.site.pojoPointImpls;
-				if (pojoPoints != null && !pojoPoints.isEmpty()){
-					for (PojoPoint point : pojoPoints){
-						point.init(cls, models, listener);
-						pojos = point.mapping(pojos);
-					}
+			Class<?> cls = null;
+			if (modelCls != null)
+				cls = Class.forName(modelCls);
+			
+			List<Object> pojos = null;
+			Collection<PojoPoint> pojoPoints = task.site.pojoPointImpls;
+			if (pojoPoints != null && !pojoPoints.isEmpty()){
+				for (PojoPoint point : pojoPoints){
+					point.init(task, cls, models, listener);
+					pojos = point.mapping(pojos);
 				}
-				if (pojos != null)
-					listener.onPojo(Thread.currentThread(), task, pojos);
 			}
+			if (pojos != null)
+				listener.onPojo(Thread.currentThread(), task, pojos);
 			//扩展点：end 蜘蛛完成工作，该收尾了
 			Collection<EndPoint> endPoints = task.site.endPointImpls;
 			if (endPoints != null && !endPoints.isEmpty()){

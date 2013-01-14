@@ -8,7 +8,7 @@ import org.eweb4j.util.FileUtil;
 
 public class Settings {
 
-	private final static Map<String, String> settings = Props.getGlobalMap();
+	private final static Map<String, String> settings = Props.getMap("spiderman");
 	
 	public static String website_xml_folder(){
 		return settings.get("website.xml.folder").replace("#{ClassPath}", FileUtil.getTopClassPath(Settings.class));

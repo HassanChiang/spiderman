@@ -11,6 +11,9 @@ import org.eweb4j.util.xml.AttrTag;
 public class Parser {
 	
 	@AttrTag
+	private String skipErr;
+	
+	@AttrTag
 	private String xpath;
 	
 	@AttrTag
@@ -54,9 +57,12 @@ public class Parser {
 		this.regex = regex;
 	}
 
-	@Override
-	public String toString() {
-		return "Parser [xpath=" + this.xpath + ", attribute=" + this.attribute
-				+ ", exp=" + this.exp + ", regex=" + this.regex + "]";
+	public String getSkipErr() {
+		return this.skipErr;
 	}
+
+	public void setSkipErr(String skipErr) {
+		this.skipErr = skipErr;
+	}
+
 }

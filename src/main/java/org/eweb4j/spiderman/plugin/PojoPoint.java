@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eweb4j.spiderman.spider.SpiderListener;
+import org.eweb4j.spiderman.task.Task;
 
 /**
  * TODO
@@ -12,7 +13,7 @@ import org.eweb4j.spiderman.spider.SpiderListener;
  */
 public interface PojoPoint {
 
-	void init(Class<?> mappingClass, List<Map<String, Object>> models, SpiderListener listener);
+	void init(Task task, Class<?> mappingClass, List<Map<String, Object>> models, SpiderListener listener);
 
 	List<Object> mapping(List<Object> pojo);
 

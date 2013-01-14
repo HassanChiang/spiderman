@@ -4,8 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.eweb4j.config.Log;
-import org.eweb4j.config.LogFactory;
+import org.eweb4j.spiderman.fetcher.FetchResult;
 import org.eweb4j.spiderman.fetcher.Page;
 import org.eweb4j.spiderman.task.Task;
 
@@ -15,7 +14,7 @@ import org.eweb4j.spiderman.task.Task;
  * @date 2013-1-7 上午11:39:57
  */
 public class SpiderListenerAdaptor implements SpiderListener{
-	public final static Log log = LogFactory.getLogger(SpiderListenerAdaptor.class);
+	public void onFetch(Thread thread, Task task, FetchResult result) {}
 	public void onNewUrls(Thread thread, Task task, Collection<String> newUrls) {}
 	public void onDupRemoval(Thread currentThread, Task task, Collection<Task> validTasks) {}
 	public void onNewTasks(Thread thread, Task task, Collection<Task> newTasks) {}

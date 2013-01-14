@@ -89,7 +89,7 @@ public class Spiderman {
 			Thread.sleep(time);
 		} catch (InterruptedException e) {
 		}
-		shutdownNow();
+		shutdown();
 		return this;
 	}
 	
@@ -300,7 +300,7 @@ public class Spiderman {
 					
 					if (task == null){
 						long wait = CommonUtil.toSeconds(site.getWaitQueue()).longValue();
-						listener.onInfo(Thread.currentThread(), null, "queue empty wait for -> " + wait + " seconds");
+//						listener.onInfo(Thread.currentThread(), null, "queue empty wait for -> " + wait + " seconds");
 						if (wait > 0) {
 							try {
 								Thread.sleep(wait * 1000);
