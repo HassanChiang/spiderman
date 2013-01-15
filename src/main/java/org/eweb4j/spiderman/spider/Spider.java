@@ -9,6 +9,7 @@ import org.eweb4j.spiderman.fetcher.FetchResult;
 import org.eweb4j.spiderman.fetcher.Page;
 import org.eweb4j.spiderman.plugin.BeginPoint;
 import org.eweb4j.spiderman.plugin.DigPoint;
+import org.eweb4j.spiderman.plugin.DoneException;
 import org.eweb4j.spiderman.plugin.DupRemovalPoint;
 import org.eweb4j.spiderman.plugin.EndPoint;
 import org.eweb4j.spiderman.plugin.FetchPoint;
@@ -53,7 +54,7 @@ public class Spider implements Runnable{
 			Collection<FetchPoint> fetchPoints = task.site.fetchPointImpls;
 			if (fetchPoints != null && !fetchPoints.isEmpty()){
 				for (FetchPoint point : fetchPoints){
-					point.init(task, listener);
+					point.context(task);
 					result = point.fetch(result);
 				}
 			}
@@ -70,7 +71,7 @@ public class Spider implements Runnable{
 			Collection<DigPoint> digPoints = task.site.digPointImpls;
 			if (digPoints != null && !digPoints.isEmpty()){
 				for (DigPoint point : digPoints){
-					point.init(result, task, listener);
+					point.context(result, task);
 					newUrls = point.digNewUrls(newUrls);
 				}
 			}
@@ -85,7 +86,7 @@ public class Spider implements Runnable{
 			Collection<DupRemovalPoint> dupRemovalPoints = task.site.dupRemovalPointImpls;
 			if (dupRemovalPoints != null && !dupRemovalPoints.isEmpty()){
 				for (DupRemovalPoint point : dupRemovalPoints){
-					point.init(task, newUrls);
+					point.context(task, newUrls);
 					validTasks = point.removeDuplicateTask(validTasks);
 				}
 			}
@@ -123,7 +124,7 @@ public class Spider implements Runnable{
 			Collection<TargetPoint> targetPoints = task.site.targetPointImpls;
 			if (targetPoints != null && !targetPoints.isEmpty()){
 				for (TargetPoint point : targetPoints){
-					point.init(task, listener);
+					point.context(task);
 					target = point.confirmTarget(target);
 				}
 			}
@@ -140,7 +141,7 @@ public class Spider implements Runnable{
 			Collection<ParsePoint> parsePoints = task.site.parsePointImpls;
 			if (parsePoints != null && !parsePoints.isEmpty()){
 				for (ParsePoint point : parsePoints){
-					point.init(task, target, page, listener);
+					point.context(task, target, page);
 					models = point.parse(models);
 				}
 			}
@@ -165,7 +166,7 @@ public class Spider implements Runnable{
 			Collection<PojoPoint> pojoPoints = task.site.pojoPointImpls;
 			if (pojoPoints != null && !pojoPoints.isEmpty()){
 				for (PojoPoint point : pojoPoints){
-					point.init(task, cls, models, listener);
+					point.context(task, cls, models);
 					pojos = point.mapping(pojos);
 				}
 			}
@@ -175,14 +176,15 @@ public class Spider implements Runnable{
 			Collection<EndPoint> endPoints = task.site.endPointImpls;
 			if (endPoints != null && !endPoints.isEmpty()){
 				for (EndPoint point : endPoints){
-					point.init(task, models, listener);
+					point.context(task, models);
 					models = point.complete(models);
 				}
 			}
 			
+		} catch (DoneException e){
+			this.listener.onInfo(Thread.currentThread(), task, "Spiderman has shutdown already...");
 		} catch(Throwable e){
 			this.listener.onError(Thread.currentThread(), task, e.toString(), new Exception(e));
-			e.printStackTrace();
 		}
 	}
 

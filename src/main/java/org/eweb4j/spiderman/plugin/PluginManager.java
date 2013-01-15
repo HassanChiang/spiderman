@@ -16,11 +16,15 @@ import org.eweb4j.spiderman.xml.Extensions;
 import org.eweb4j.spiderman.xml.Impl;
 import org.eweb4j.spiderman.xml.Plugin;
 
-
+/**
+ * 插件管理
+ * @author weiwei l.weiwei@163.com
+ * @date 2013-1-15 下午03:00:57
+ */
 public class PluginManager {
 
-	private static Map<String, Collection<Impl>> impls = new HashMap<String, Collection<Impl>>();
-	private final static SpiderIOC ioc = SpiderIOCs.create();
+	private Map<String, Collection<Impl>> impls = new HashMap<String, Collection<Impl>>();
+	private final SpiderIOC ioc = SpiderIOCs.create();
 	
 	/**
 	 * 只用于生成配置文件的时候用
@@ -52,7 +56,7 @@ public class PluginManager {
 	 * @param listener
 	 * @throws Exception
 	 */
-	public static void loadPluginConf(Collection<Plugin> plugins, SpiderListener listener) throws Exception{
+	public void loadPluginConf(Collection<Plugin> plugins, SpiderListener listener) throws Exception{
 		if (plugins == null || plugins.isEmpty())
 			listener.onInfo(Thread.currentThread(), null, "there is no plugins to load");
 		
@@ -98,7 +102,7 @@ public class PluginManager {
 				//按照排序
 				Collections.sort(impls, implComp);
 				
-				PluginManager.impls.put(point, impls);
+				this.impls.put(point, impls);//一个扩展点有多个实现类
 				
 				listener.onInfo(Thread.currentThread(), null, "plugin["+plugin.getName()+"] extension-point["+point+"] loading ok ");
 			}
@@ -112,11 +116,11 @@ public class PluginManager {
 	 * @param name
 	 * @return
 	 */
-	public static <T> ExtensionPoint<T> getExtensionPoint(final String name){
-		if (!PluginManager.impls.containsKey(name))
+	public <T> ExtensionPoint<T> getExtensionPoint(final String pointName){
+		if (!this.impls.containsKey(pointName))
 			return null;
 		
-		final Collection<Impl> _impls = PluginManager.impls.get(name);
+		final Collection<Impl> _impls = this.impls.get(pointName);
 		return new ExtensionPoint<T>() {
 			public Collection<T> getExtensions() {
 				Collection<T> result = new ArrayList<T>();
@@ -131,11 +135,11 @@ public class PluginManager {
 							Class<T> cls = (Class<T>) Class.forName(value);
 							t = cls.newInstance();
 						} catch (ClassNotFoundException e) {
-							throw new RuntimeException("Impl class -> " + value + " of ExtensionPoint["+name+"] not found !", e);
+							throw new RuntimeException("Impl class -> " + value + " of ExtensionPoint["+pointName+"] not found !", e);
 						} catch (InstantiationException e) {
-							throw new RuntimeException("Impl class -> " + value + " of ExtensionPoint["+name+"] instaniation fail !", e);
+							throw new RuntimeException("Impl class -> " + value + " of ExtensionPoint["+pointName+"] instaniation fail !", e);
 						} catch (IllegalAccessException e) {
-							throw new RuntimeException("Impl class -> " + value + " of ExtensionPoint["+name+"] illegal access !", e);
+							throw new RuntimeException("Impl class -> " + value + " of ExtensionPoint["+pointName+"] illegal access !", e);
 						}
 					}
 					
