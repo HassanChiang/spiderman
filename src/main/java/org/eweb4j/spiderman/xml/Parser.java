@@ -14,6 +14,9 @@ public class Parser {
 	private String skipErr;
 	
 	@AttrTag
+	private String skipRgxFail;
+	
+	@AttrTag
 	private String xpath;
 	
 	@AttrTag
@@ -63,6 +66,14 @@ public class Parser {
 
 	public void setSkipErr(String skipErr) {
 		this.skipErr = skipErr;
+	}
+
+	public String getSkipRgxFail() {
+		return this.skipRgxFail;
+	}
+
+	public void setSkipRgxFail(String skipRgxFail) {
+		this.skipRgxFail = skipRgxFail;
 	}
 
 }

@@ -302,6 +302,8 @@ public class Spiderman {
 	private void initPool(){
 		if (pool == null){
 			int size = sites.size();
+			if (size == 0)
+				throw new RuntimeException("there is no website to fetch...");
 			pool = new ThreadPoolExecutor(size, size,
                     60L, TimeUnit.SECONDS,
                     new LinkedBlockingQueue<Runnable>());

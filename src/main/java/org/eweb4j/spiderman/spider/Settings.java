@@ -14,6 +14,10 @@ public class Settings {
 		return settings.get("website.xml.folder").replace("#{ClassPath}", FileUtil.getTopClassPath(Settings.class));
 	}
 	
+	public static String website_visited_folder(){
+		return settings.get("website.visited.folder").replace("#{ClassPath}", FileUtil.getTopClassPath(Settings.class));
+	}
+	
 	public static int http_fetch_retry(){
 		return Integer.parseInt(settings.get("http.fetch.retry"));
 	}
