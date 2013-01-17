@@ -25,5 +25,9 @@ public class Rule {
 	public void setValue(String value) {
 		this.value = value;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "Rule [type=" + this.type + ", value=" + this.value + "]";
+	}
 }

@@ -12,6 +12,9 @@ import org.eweb4j.spiderman.url.UrlRuleChecker;
  */
 public class TaskQueue {
 	
+	public void init(){
+	}
+	
 	private PriorityBlockingQueue<Task> queue = new PriorityBlockingQueue<Task>(500, new Comparator<Task>(){
 		public int compare(Task t1, Task t2) {
 			if (t1.sort == t2.sort) return 0;
@@ -19,7 +22,14 @@ public class TaskQueue {
 		}
 	});
 	
+	private Boolean isStop = false;
+	
 	public Task pollTask() throws Exception{
+		synchronized (isStop) {
+			if (isStop)
+				return null;
+		}
+		
 		return queue.poll();
 	}
 	
@@ -30,6 +40,11 @@ public class TaskQueue {
 	 * @return
 	 */
 	public boolean pushTask(Task task){
+		synchronized (isStop) {
+			if (isStop)
+				return false;
+		}
+		
 		synchronized (queue) {
 			if (task == null)
 				return false;
@@ -40,9 +55,16 @@ public class TaskQueue {
 			//检查是否匹配xml配置的url规则
 			if (!UrlRuleChecker.check(task.url, task.site.getQueueRules().getRule()))
 				return false;
-			
 			return queue.add(task);
 		}
 	}
 	
+	public void stop(){
+		synchronized (isStop) {
+			isStop = true;
+		}
+		synchronized (queue) {
+			this.queue.clear();
+		}
+	}
 }

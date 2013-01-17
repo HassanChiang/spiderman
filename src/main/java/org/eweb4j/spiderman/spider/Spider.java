@@ -184,7 +184,8 @@ public class Spider implements Runnable{
 		} catch (DoneException e){
 			this.listener.onInfo(Thread.currentThread(), task, "Spiderman has shutdown already...");
 		} catch(Throwable e){
-			this.listener.onError(Thread.currentThread(), task, e.toString(), new Exception(e));
+			if (this.listener != null)
+				this.listener.onError(Thread.currentThread(), task, e.toString(), new Exception(e));
 		}
 	}
 

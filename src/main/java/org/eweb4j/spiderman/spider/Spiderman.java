@@ -4,7 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -51,18 +54,29 @@ public class Spiderman {
 	private Collection<Site> sites = null;
 	private SpiderListener listener = null;
 	
+	private boolean isSchedule = false;
+	private Timer timer = new Timer();
+	private String scheduleTime = "1h";
+	private String scheduleDelay = "1m";
+	private int scheduleTimes = 0;
+	private int maxScheduleTimes = 0;
+	
 	public final static Spiderman me() {
 		return new Spiderman();
 	}
 	
-	public Spiderman init() {
-		return init(null);
+	/**
+	 * Use the listen(listener).init()
+	 * @date 2013-1-17 下午01:43:52
+	 * @param listener
+	 * @return
+	 */
+	@Deprecated
+	public Spiderman init(SpiderListener listener) {
+		return listen(listener).init();
 	}
 	
-	public Spiderman init(SpiderListener _listener) {
-		listener = _listener;
-		if (listener == null)
-			listener = new SpiderListenerAdaptor();
+	public Spiderman init(){
 		isStop = false;
 		isShutdownNow = false;
 		sites = null;
@@ -75,16 +89,135 @@ public class Spiderman {
 			listener.onInfo(Thread.currentThread(),null, "Spiderman init error.");
 			listener.onError(Thread.currentThread(), null, "Spiderman init error.", e);
 		}
-		
+		return this;
+	}
+	
+	public Spiderman listen(SpiderListener listener){
+		this.listener = listener;
+		if (this.listener == null)
+			this.listener = new SpiderListenerAdaptor();
 		return this;
 	}
 	
 	public Spiderman startup() {
-		for (Site site : sites){
-			pool.execute(new Spiderman._Executor(site));
-			listener.onInfo(Thread.currentThread(), null, "spider tasks of " + site.getName() + " start... ");
+		if (isSchedule) {
+			final Spiderman _this = this;
+			timer.schedule(new TimerTask() {
+				public void run() {
+					//限制schedule的次数
+					if (_this.maxScheduleTimes > 0 && _this.scheduleTimes >= _this.maxScheduleTimes){
+						_this.cancel();
+						_this.listener.onInfo(Thread.currentThread(), null, "Spiderman has completed and cancel the schedule.");
+						_this.isSchedule = false;
+					} else {
+						//阻塞，判断之前所有的网站是否都已经停止完全
+						//加个超时
+						long start = System.currentTimeMillis();
+						long timeout = 10*60*1000;
+						while (true) {
+							if ((System.currentTimeMillis() - start) > timeout){
+								_this.listener.onError(Thread.currentThread(), null, "timeout of restart blocking check...", new Exception());
+								break;
+							}
+							if (_this.sites == null || _this.sites.isEmpty())
+								break;
+							try {
+								Thread.sleep(1*1000);
+								boolean canBreak = true;
+								for (Site site : _this.sites) {
+									if (!site.isStop){
+										canBreak = false;
+										_this.listener.onInfo(Thread.currentThread(), null, "can not restart spiderman cause there has running-tasks of this site -> "+site.getName()+"...");
+									}
+								}
+								
+								if (canBreak)
+									break;
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+								break;
+							}
+						}
+						
+						//只有所有的网站资源都已被释放[特殊情况timeout]完全才重启Spiderman
+						_this.scheduleTimes++;
+						String strTimes = _this.scheduleTimes+"";
+						if (_this.maxScheduleTimes > 0)
+							strTimes += "/"+_this.maxScheduleTimes;
+						
+						_this.listener.onInfo(Thread.currentThread(), null, "Spiderman has scheduled "+strTimes+" times.");
+						_this.init()._startup().keepStrict(scheduleTime);
+					}
+				}
+			}, new Date(), (CommonUtil.toSeconds(scheduleTime).intValue() + CommonUtil.toSeconds(scheduleDelay).intValue())*1000);
+			
+			return this;
 		}
 		
+		return _startup();
+	}
+	
+	private Spiderman _startup(){
+		for (Site site : sites){
+			pool.execute(new Spiderman._Executor(site));
+			listener.onInfo(Thread.currentThread(), null, "spider tasks of site[" + site.getName() + "] start... ");
+		}
+		return this;
+	}
+	
+	//-------- Schedule ------------
+	
+	public Spiderman blocking(){
+		while (isSchedule){
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return this;
+	}
+	
+	public Spiderman schedule(){
+		return schedule(null);
+	}
+	
+	public Spiderman schedule(String time){
+		if (time != null && time.trim().length() > 0)
+			this.scheduleTime = time;
+		this.isSchedule = true;
+		return this;
+	}
+	
+	public Spiderman delay(String delay){
+		if (delay != null && delay.trim().length() > 0)
+			this.scheduleDelay = delay;
+		return this;
+	}
+	
+	public Spiderman times(int maxTimes){
+		if (maxTimes > 0)
+			this.maxScheduleTimes = maxTimes;
+		return this;
+	}
+	
+	public Spiderman cancel(){
+		this.timer.cancel();
+		return this;
+	}
+	//------------------------------
+	
+	public Spiderman keepStrict(String time){
+		return keepStrict(CommonUtil.toSeconds(time).longValue()*1000);
+	}
+	
+	public Spiderman keepStrict(long time){
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+		}
+		shutdownNow();
 		return this;
 	}
 	
@@ -261,18 +394,19 @@ public class Spiderman {
 			
 			//初始化网站的队列容器
 			site.queue = new TaskQueue();
+			site.queue.init();
 			//初始化网站目标Model计数器
 			site.counter = new Counter();
 		}
 	}
 	
-	private void firstInitPoint(Collection<? extends Point> points, Site site, SpiderListener listener){
+	private static void firstInitPoint(Collection<? extends Point> points, Site site, SpiderListener listener){
 		for (Point point : points){
 			point.init(site, listener);
 		}
 	}
 	
-	private void destroyPoint(Collection<? extends Point> points){
+	private static void destroyPoint(Collection<? extends Point> points){
 		if (points == null)
 			return ;
 		for (Point point : points){
@@ -285,7 +419,7 @@ public class Spiderman {
 		}
 	}
 	
-	private void destroyPoint(Site site) {
+	private static void destroySite(Site site) {
 		destroyPoint(site.beginPointImpls);
 		destroyPoint(site.digPointImpls);
 		destroyPoint(site.dupRemovalPointImpls);
@@ -297,6 +431,13 @@ public class Spiderman {
 		destroyPoint(site.taskPollPointImpls);
 		destroyPoint(site.taskPushPointImpls);
 		destroyPoint(site.taskSortPointImpls);
+		site.queue.stop();
+		site.isStop = true;
+//		if (isShutdownNow) {
+//			site.counter = null;
+//			site.fetcher = null;
+//			site = null;
+//		}
 	}
 	
 	private void initPool(){
@@ -361,10 +502,14 @@ public class Spiderman {
 			while(true){
 				try {
 					if (isStop) {
-						if (isShutdownNow) _pool.shutdownNow(); else _pool.shutdown();
+						if (isShutdownNow) 
+							_pool.shutdownNow(); 
+						else 
+							_pool.shutdown();
+						
 						_pool = null;
 						listener.onInfo(Thread.currentThread(), null, site.getName() + ".Spider shutdown...");
-						destroyPoint(this.site);
+						destroySite(this.site);
 						return ;
 					}
 					
@@ -379,7 +524,7 @@ public class Spiderman {
 					
 					if (task == null){
 						long wait = CommonUtil.toSeconds(site.getWaitQueue()).longValue();
-						listener.onInfo(Thread.currentThread(), null, "queue empty wait for -> " + wait + " seconds");
+//						listener.onInfo(Thread.currentThread(), null, "queue empty wait for -> " + wait + " seconds");
 						if (wait > 0) {
 							try {
 								Thread.sleep(wait * 1000);

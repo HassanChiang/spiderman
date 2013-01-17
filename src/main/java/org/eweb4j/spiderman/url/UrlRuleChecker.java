@@ -1,5 +1,6 @@
 package org.eweb4j.spiderman.url;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eweb4j.spiderman.xml.Rule;
@@ -55,8 +56,15 @@ public class UrlRuleChecker{
 	}
 
 	public static void main(String[] args){
-		String url =   "http://news.163.com/12/1017/03/8E06TEVG00011229.html";
-		String regex = "http://news.163.com/\\d+/\\d+/\\d+/\\w+\\.html";
+		String url =   "http://www.kpbz.net/531_%2Fuploads%2Fallimg%2F2009-09%2F01105935-1-10Y93.jpg_9.html";
+		String regex = ".*uploads.*allimg.*\\.jpg_\\d+\\.html";
 		System.out.println(url.matches(regex));
+		Collection<Rule> rules = new ArrayList<Rule>();
+		Rule rule = new Rule();
+		rule.setType("!regex");
+		rule.setValue("^.*\\.(jpg|png|gif)$");
+		rules.add(rule);
+		boolean isOk = UrlRuleChecker.check(url, rules);
+		System.out.println(isOk);
 	}
 }

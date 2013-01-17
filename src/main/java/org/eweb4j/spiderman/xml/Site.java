@@ -58,6 +58,8 @@ public class Site {
 	
 	//------------------------------------------
 	@Skip
+	public Boolean isStop = false;//每个网站都有属于自己的一个停止信号，用来标识该网站的状态是否停止完全
+	@Skip
 	public TaskQueue queue;//每个网站都有属于自己的一个任务队列容器
 	@Skip
 	public PageFetcher fetcher;//每个网站都有属于自己的一个抓取器
@@ -88,7 +90,7 @@ public class Site {
 	@Skip
 	public Collection<PojoPoint> pojoPointImpls;
 	//-------------------------------------------
-	
+
 	public String getName() {
 		return name;
 	}
