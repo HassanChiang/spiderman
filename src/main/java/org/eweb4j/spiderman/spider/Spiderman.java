@@ -204,6 +204,7 @@ public class Spiderman {
 	
 	public Spiderman cancel(){
 		this.timer.cancel();
+		timer = new Timer();
 		return this;
 	}
 	//------------------------------
@@ -400,13 +401,13 @@ public class Spiderman {
 		}
 	}
 	
-	private static void firstInitPoint(Collection<? extends Point> points, Site site, SpiderListener listener){
+	private void firstInitPoint(Collection<? extends Point> points, Site site, SpiderListener listener){
 		for (Point point : points){
 			point.init(site, listener);
 		}
 	}
 	
-	private static void destroyPoint(Collection<? extends Point> points){
+	private void destroyPoint(Collection<? extends Point> points){
 		if (points == null)
 			return ;
 		for (Point point : points){
@@ -419,7 +420,7 @@ public class Spiderman {
 		}
 	}
 	
-	private static void destroySite(Site site) {
+	private void destroySite(Site site) {
 		destroyPoint(site.beginPointImpls);
 		destroyPoint(site.digPointImpls);
 		destroyPoint(site.dupRemovalPointImpls);
@@ -433,11 +434,11 @@ public class Spiderman {
 		destroyPoint(site.taskSortPointImpls);
 		site.queue.stop();
 		site.isStop = true;
-//		if (isShutdownNow) {
-//			site.counter = null;
-//			site.fetcher = null;
-//			site = null;
-//		}
+		if (isShutdownNow) {
+			site.counter = null;
+			site.fetcher = null;
+			site = null;
+		}
 	}
 	
 	private void initPool(){
