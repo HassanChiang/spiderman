@@ -66,12 +66,10 @@ public class Spiderman {
 	}
 	
 	/**
-	 * Use the listen(listener).init()
 	 * @date 2013-1-17 下午01:43:52
 	 * @param listener
 	 * @return
 	 */
-	@Deprecated
 	public Spiderman init(SpiderListener listener) {
 		return listen(listener).init();
 	}
