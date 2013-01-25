@@ -78,7 +78,7 @@ public class PluginManager {
 			
 			Collection<Extension> extensions = plugin.getExtensions().getExtension();
 			if (extensions == null || extensions.isEmpty()){
-				listener.onInfo(Thread.currentThread(), null, "plugin["+plugin.getName()+"] has no extentions to load");
+				listener.onInfo(Thread.currentThread(), null, "plugin["+plugin.getName()+"] has no extensions to load");
 				continue;
 			}
 			
@@ -102,7 +102,12 @@ public class PluginManager {
 				//按照排序
 				Collections.sort(impls, implComp);
 				
-				this.impls.put(point, impls);//一个扩展点有多个实现类
+				//一个扩展点有多个实现类
+				Collection<Impl> _impls = this.impls.get(point);
+				if (_impls != null)
+					_impls.addAll(impls);
+				else
+					this.impls.put(point, impls);
 				
 				listener.onInfo(Thread.currentThread(), null, "plugin["+plugin.getName()+"] extension-point["+point+"] loading ok ");
 			}
