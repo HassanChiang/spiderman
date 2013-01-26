@@ -7,6 +7,9 @@ public class Target {
 	@AttrTag
 	private String name;
 	
+	@AttrTag
+	private String cType;
+	
 	private Urls urls ;
 	
 	private Model model;
@@ -33,6 +36,14 @@ public class Target {
 
 	public void setModel(Model model) {
 		this.model = model;
+	}
+
+	public String getCType() {
+		return this.cType;
+	}
+
+	public void setCType(String cType) {
+		this.cType = cType;
 	}
 	
 }
