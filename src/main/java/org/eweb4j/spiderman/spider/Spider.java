@@ -167,8 +167,8 @@ public class Spider implements Runnable{
 			Collection<PojoPoint> pojoPoints = task.site.pojoPointImpls;
 			if (pojoPoints != null && !pojoPoints.isEmpty()){
 				for (PojoPoint point : pojoPoints){
-					point.context(task, cls, models);
-					pojos = point.mapping(pojos);
+//					point.context();
+					pojos = point.mapping(task, cls, models, pojos);
 				}
 			}
 			if (pojos != null)

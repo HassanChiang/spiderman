@@ -234,13 +234,15 @@ public class Spiderman {
 	}
 	
 	public void shutdown(){
-		pool.shutdown();
+		if (pool != null)
+			pool.shutdown();
 		pool = null;
 		isStop = true;
 	}
 	
 	public void shutdownNow(){
-		pool.shutdownNow();
+		if (pool != null)
+			pool.shutdownNow();
 		pool = null;
 		isStop = true;
 		isShutdownNow = true;
