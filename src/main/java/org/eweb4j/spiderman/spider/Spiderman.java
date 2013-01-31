@@ -430,7 +430,9 @@ public class Spiderman {
 		destroyPoint(site.taskPollPointImpls);
 		destroyPoint(site.taskPushPointImpls);
 		destroyPoint(site.taskSortPointImpls);
+		
 		site.queue.stop();
+		site.queue = null;
 		site.isStop = true;
 		if (isShutdownNow) {
 			site.counter = null;
