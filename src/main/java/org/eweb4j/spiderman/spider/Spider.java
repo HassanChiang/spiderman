@@ -50,6 +50,9 @@ public class Spider implements Runnable{
 			
 			if (task == null) return ;
 			
+			if (task.site.isStop)
+				return ;
+			
 			//扩展点：fetch 获取HTTP内容
 			FetchResult result = null;
 			Collection<FetchPoint> fetchPoints = task.site.fetchPointImpls;
@@ -67,6 +70,9 @@ public class Spider implements Runnable{
 			
 			listener.onFetch(Thread.currentThread(), task, result);
 			
+			if (task.site.isStop)
+				return ;
+			
 			//扩展点：dig new url 发觉新URL
 			Collection<String> newUrls = null;
 			Collection<DigPoint> digPoints = task.site.digPointImpls;
@@ -81,6 +87,9 @@ public class Spider implements Runnable{
 				this.listener.onNewUrls(Thread.currentThread(), task, newUrls);
 			else
 				newUrls = new ArrayList<String>();
+			
+			if (task.site.isStop)
+				return ;
 			
 			//扩展点：dup_removal URL去重,然后变成Task
 			Collection<Task> validTasks = null;
@@ -98,6 +107,9 @@ public class Spider implements Runnable{
 			if (validTasks == null)
 				validTasks = new ArrayList<Task>();
 			
+			if (task.site.isStop)
+				return ;
+			
 			//扩展点：task_sort 给任务排序
 			Collection<TaskSortPoint> taskSortPoints = task.site.taskSortPointImpls;
 			if (taskSortPoints != null && !taskSortPoints.isEmpty()){
@@ -108,6 +120,9 @@ public class Spider implements Runnable{
 			
 			if (validTasks == null)
 				validTasks = new ArrayList<Task>();
+			
+			if (task.site.isStop)
+				return ;
 			
 			//扩展点：task_push 将任务放入队列
 			validTasks = pushTask(validTasks);
@@ -120,6 +135,9 @@ public class Spider implements Runnable{
 				listener.onInfo(Thread.currentThread(), task, " spider stop cause the fetch result.page is null");
 				return ;
 			}
+			
+			if (task.site.isStop)
+				return ;
 			//扩展点：target 确认当前的Task.url符不符合目标期望
 			Target target = null;
 			Collection<TargetPoint> targetPoints = task.site.targetPointImpls;
@@ -136,6 +154,9 @@ public class Spider implements Runnable{
 			}
 			
 			this.listener.onTargetPage(Thread.currentThread(), task, page);
+			
+			if (task.site.isStop)
+				return ;
 			
 			//扩展点：parse 把已确认好的目标页面解析成为Map对象
 			List<Map<String, Object>> models = null;
@@ -157,6 +178,9 @@ public class Spider implements Runnable{
 			this.task.site.counter.plus();
 			listener.onParse(Thread.currentThread(), task, models);
 			
+			if (task.site.isStop)
+				return ;
+			
 			//扩展点：pojo 将Map数据映射为POJO
 			String modelCls = target.getModel().getClazz();
 			Class<?> cls = null;
@@ -173,6 +197,10 @@ public class Spider implements Runnable{
 			}
 			if (pojos != null)
 				listener.onPojo(Thread.currentThread(), task, pojos);
+			
+			if (task.site.isStop)
+				return ;
+			
 			//扩展点：end 蜘蛛完成工作，该收尾了
 			Collection<EndPoint> endPoints = task.site.endPointImpls;
 			if (endPoints != null && !endPoints.isEmpty()){
