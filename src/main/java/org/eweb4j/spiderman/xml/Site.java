@@ -1,6 +1,7 @@
 package org.eweb4j.spiderman.xml;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
 
 import org.eweb4j.spiderman.fetcher.PageFetcher;
 import org.eweb4j.spiderman.plugin.BeginPoint;
@@ -9,12 +10,14 @@ import org.eweb4j.spiderman.plugin.DupRemovalPoint;
 import org.eweb4j.spiderman.plugin.EndPoint;
 import org.eweb4j.spiderman.plugin.FetchPoint;
 import org.eweb4j.spiderman.plugin.ParsePoint;
+import org.eweb4j.spiderman.plugin.Point;
 import org.eweb4j.spiderman.plugin.PojoPoint;
 import org.eweb4j.spiderman.plugin.TargetPoint;
 import org.eweb4j.spiderman.plugin.TaskPollPoint;
 import org.eweb4j.spiderman.plugin.TaskPushPoint;
 import org.eweb4j.spiderman.plugin.TaskSortPoint;
 import org.eweb4j.spiderman.spider.Counter;
+import org.eweb4j.spiderman.spider.SpiderListener;
 import org.eweb4j.spiderman.task.TaskQueue;
 import org.eweb4j.util.xml.AttrTag;
 import org.eweb4j.util.xml.Skip;
@@ -57,6 +60,8 @@ public class Site {
 	private Plugins plugins;//插件
 	
 	//------------------------------------------
+	@Skip
+	public ExecutorService pool;//每个网站都有属于自己的一个线程池
 	@Skip
 	public Boolean isStop = false;//每个网站都有属于自己的一个停止信号，用来标识该网站的状态是否停止完全
 	@Skip
@@ -195,4 +200,125 @@ public class Site {
 		this.cookies = cookies;
 	}
 	
+	private void destroyPoint(Collection<? extends Point> points, SpiderListener listener){
+		if (points == null)
+			return ;
+		for (Point point : points){
+			try {
+				point.destroy();
+			} catch (Exception e){
+				listener.onError(Thread.currentThread(), null, "Plugin.point->"+point+" destroy failed.", e);
+			}finally{
+				point = null;
+			}
+		}
+	}
+	
+	public void destroy(SpiderListener listener, boolean isShutdownNow) {
+		try {
+			this.queue.stop();
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".TaskQueue stop failed.", e);
+		}
+		
+		try {
+			if (isShutdownNow)
+				this.pool.shutdownNow();
+			else
+				this.pool.shutdown();
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".ThreadPool shutdown failed.", e);
+		}
+		
+		try {
+			destroyPoint(this.taskPollPointImpls, listener);
+			this.taskPollPointImpls.clear();
+			this.taskPollPointImpls = null;
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".TaskPollPlugin destroy failed.", e);
+		}
+		
+		try {
+			destroyPoint(this.beginPointImpls, listener);
+			this.beginPointImpls.clear();
+			this.beginPointImpls = null;
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".BeginPlugin destroy failed.", e);
+		}
+		try {
+			destroyPoint(this.fetchPointImpls, listener);
+			this.fetchPointImpls.clear();
+			this.fetchPointImpls = null;
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".FetchPlugin destroy failed.", e);
+		}
+		try{
+			destroyPoint(this.digPointImpls, listener);
+			this.digPointImpls.clear();
+			this.digPointImpls = null;
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".DigPlugin destroy failed.", e);
+		}
+		try {
+			destroyPoint(this.dupRemovalPointImpls, listener);
+			this.dupRemovalPointImpls.clear();
+			this.dupRemovalPointImpls = null;
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".DupRemovalPlugin destroy failed.", e);
+		}
+		
+		try {
+			destroyPoint(this.taskSortPointImpls, listener);
+			this.taskSortPointImpls.clear();
+			this.taskSortPointImpls = null;
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".TaskSortPlugin destroy failed.", e);
+		}
+		
+		try {
+			destroyPoint(this.taskPushPointImpls, listener);
+			this.taskPushPointImpls.clear();
+			this.taskPollPointImpls = null;
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".TaskPushPlugin destroy failed.", e);
+		}
+		
+		try {
+			destroyPoint(this.targetPointImpls, listener);
+			this.targetPointImpls.clear();
+			this.targetPointImpls = null;
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".TargetPlugin destroy failed.", e);
+		}
+		
+		try{
+			destroyPoint(this.parsePointImpls, listener);
+			this.parsePointImpls.clear();
+			this.parsePointImpls = null;
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".ParserPlugin destroy failed.", e);
+		}
+		try{
+			destroyPoint(this.pojoPointImpls, listener);
+			this.pojoPointImpls.clear();
+			this.pojoPointImpls = null;
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".PojoPlugin destroy failed.", e);
+		}
+		
+		try {
+			destroyPoint(this.endPointImpls, listener);
+			this.endPointImpls.clear();
+			this.endPointImpls = null;
+		}catch(Exception e){
+			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".EndPlugin destroy failed.", e);
+		}
+		
+		this.isStop = true;
+		
+//		this.queue = null;
+		
+//		this.counter = null;
+//		this.fetcher = null;
+	}
 }

@@ -54,8 +54,7 @@ public class TaskQueue {
 	}
 	
 	public synchronized void stop(){
-		isStop = true;
 		this.queue.clear();
-		this.queue = null;
+		isStop = true;
 	}
 }

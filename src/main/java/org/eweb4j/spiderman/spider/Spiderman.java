@@ -48,7 +48,6 @@ import org.eweb4j.util.xml.XMLWriter;
 public class Spiderman {
 
 	public final SpiderIOC ioc = SpiderIOCs.create();
-	public Boolean isStop = false;
 	public Boolean isShutdownNow = false;
 	private ExecutorService pool = null;
 	private Collection<Site> sites = null;
@@ -77,7 +76,6 @@ public class Spiderman {
 	public Spiderman init(){
 		if (this.listener == null)
 			this.listener = new SpiderListenerAdaptor();
-		isStop = false;
 		isShutdownNow = false;
 		sites = null;
 		pool = null;
@@ -111,15 +109,21 @@ public class Spiderman {
 						//阻塞，判断之前所有的网站是否都已经停止完全
 						//加个超时
 						long start = System.currentTimeMillis();
-						long timeout = 10*60*1000;
+						long timeout = 1*60*1000;
 						while (true) {
-							if ((System.currentTimeMillis() - start) > timeout){
-								_this.listener.onError(Thread.currentThread(), null, "timeout of restart blocking check...", new Exception());
-								break;
-							}
-							if (_this.sites == null || _this.sites.isEmpty())
-								break;
 							try {
+								if ((System.currentTimeMillis() - start) > timeout){
+									_this.listener.onError(Thread.currentThread(), null, "timeout of restart blocking check...", new Exception());
+									for (Site site : _this.sites) {
+										if (!site.isStop){
+											site.destroy(_this.listener, _this.isShutdownNow);
+										}
+									}
+									break;
+								}
+								if (_this.sites == null || _this.sites.isEmpty())
+									break;
+								
 								Thread.sleep(1*1000);
 								boolean canBreak = true;
 								for (Site site : _this.sites) {
@@ -131,9 +135,9 @@ public class Spiderman {
 								
 								if (canBreak)
 									break;
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-								break;
+							} catch (Exception e) {
+								_this.listener.onError(Thread.currentThread(), null, "", e);
+								throw new RuntimeException("Spiderman can not schedule", e);
 							}
 						}
 						
@@ -161,6 +165,28 @@ public class Spiderman {
 			listener.onInfo(Thread.currentThread(), null, "spider tasks of site[" + site.getName() + "] start... ");
 		}
 		return this;
+	}
+	
+	public void shutdown(){
+		for (Site site : sites){
+			site.destroy(listener, false);
+			listener.onInfo(Thread.currentThread(), null, "Site[" + site.getName() + "] destroy... ");
+		}
+		
+		if (pool != null)
+			pool.shutdown();
+	}
+	
+	public void shutdownNow(){
+		for (Site site : sites){
+			site.destroy(listener, true);
+			listener.onInfo(Thread.currentThread(), null, "Site[" + site.getName() + "] destroy... ");
+		}
+		
+		if (pool != null)
+			pool.shutdownNow();
+		
+		isShutdownNow = true;
 	}
 	
 	//-------- Schedule ------------
@@ -231,21 +257,6 @@ public class Spiderman {
 		}
 		shutdown();
 		return this;
-	}
-	
-	public void shutdown(){
-		if (pool != null)
-			pool.shutdown();
-		pool = null;
-		isStop = true;
-	}
-	
-	public void shutdownNow(){
-		if (pool != null)
-			pool.shutdownNow();
-		pool = null;
-		isStop = true;
-		isShutdownNow = true;
 	}
 	
 	private void loadPlugins() throws Exception{
@@ -407,42 +418,6 @@ public class Spiderman {
 		}
 	}
 	
-	private void destroyPoint(Collection<? extends Point> points){
-		if (points == null)
-			return ;
-		for (Point point : points){
-			try {
-				point.destroy();
-			} catch (DoneException e){
-				continue;
-			}
-			point = null;
-		}
-	}
-	
-	private void destroySite(Site site) {
-		destroyPoint(site.beginPointImpls);
-		destroyPoint(site.digPointImpls);
-		destroyPoint(site.dupRemovalPointImpls);
-		destroyPoint(site.endPointImpls);
-		destroyPoint(site.fetchPointImpls);
-		destroyPoint(site.parsePointImpls);
-		destroyPoint(site.pojoPointImpls);
-		destroyPoint(site.targetPointImpls);
-		destroyPoint(site.taskPollPointImpls);
-		destroyPoint(site.taskPushPointImpls);
-		destroyPoint(site.taskSortPointImpls);
-		
-		site.queue.stop();
-		site.queue = null;
-		site.isStop = true;
-		if (isShutdownNow) {
-			site.counter = null;
-			site.fetcher = null;
-			site = null;
-		}
-	}
-	
 	private void initPool(){
 		if (pool == null){
 			int size = sites.size();
@@ -458,7 +433,6 @@ public class Spiderman {
 	
 	private class _Executor implements Runnable{
 		private Site site = null;
-		private ExecutorService _pool = null;
 		
 		public _Executor(Site site){
 			this.site = site;
@@ -482,12 +456,12 @@ public class Spiderman {
 			};
 			
 			if (size > 0)
-				this._pool = new ThreadPoolExecutor(size, size,
+				this.site.pool = new ThreadPoolExecutor(size, size,
 						60L, TimeUnit.SECONDS,
 	                    new LinkedBlockingQueue<Runnable>(),
 	                    rejectedHandler);
 			else
-				this._pool = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+				this.site.pool = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
 	                    60L, TimeUnit.SECONDS,
 	                    new SynchronousQueue<Runnable>(),
 	                    rejectedHandler);
@@ -503,19 +477,19 @@ public class Spiderman {
 			final float times = CommonUtil.toSeconds(this.site.getSchedule()) * 1000;
 			long start = System.currentTimeMillis();
 			while(true){
+//				if (isStop) {
+//					if (isShutdownNow) 
+//						_pool.shutdownNow(); 
+//					else 
+//						_pool.shutdown();
+//					
+//					_pool = null;
+//					listener.onInfo(Thread.currentThread(), null, site.getName() + ".Spider shutdown...");
+//					destroySite(this.site);
+//					return ;
+//				}
+				
 				try {
-					if (isStop) {
-						if (isShutdownNow) 
-							_pool.shutdownNow(); 
-						else 
-							_pool.shutdown();
-						
-						_pool = null;
-						listener.onInfo(Thread.currentThread(), null, site.getName() + ".Spider shutdown...");
-						destroySite(this.site);
-						return ;
-					}
-					
 					//扩展点：TaskPoll
 					Task task = null;
 					Collection<TaskPollPoint> taskPollPoints = site.taskPollPointImpls;
@@ -540,8 +514,8 @@ public class Spiderman {
 					
 					Spider spider = new Spider();
 					spider.init(task, listener);
-					_pool.execute(spider);
 					
+					this.site.pool.execute(spider);
 				}catch (DoneException e) {
 					listener.onInfo(Thread.currentThread(), null, e.toString());
 					return ;
