@@ -168,19 +168,22 @@ public class Spiderman {
 	}
 	
 	public void shutdown(){
-		for (Site site : sites){
-			site.destroy(listener, false);
-			listener.onInfo(Thread.currentThread(), null, "Site[" + site.getName() + "] destroy... ");
+		if (sites != null) {
+			for (Site site : sites){
+				site.destroy(listener, false);
+				listener.onInfo(Thread.currentThread(), null, "Site[" + site.getName() + "] destroy... ");
+			}
 		}
-		
 		if (pool != null)
 			pool.shutdown();
 	}
 	
 	public void shutdownNow(){
-		for (Site site : sites){
-			site.destroy(listener, true);
-			listener.onInfo(Thread.currentThread(), null, "Site[" + site.getName() + "] destroy... ");
+		if (sites != null) {
+			for (Site site : sites){
+				site.destroy(listener, true);
+				listener.onInfo(Thread.currentThread(), null, "Site[" + site.getName() + "] destroy... ");
+			}
 		}
 		
 		if (pool != null)
@@ -477,17 +480,6 @@ public class Spiderman {
 			final float times = CommonUtil.toSeconds(this.site.getSchedule()) * 1000;
 			long start = System.currentTimeMillis();
 			while(true){
-//				if (isStop) {
-//					if (isShutdownNow) 
-//						_pool.shutdownNow(); 
-//					else 
-//						_pool.shutdown();
-//					
-//					_pool = null;
-//					listener.onInfo(Thread.currentThread(), null, site.getName() + ".Spider shutdown...");
-//					destroySite(this.site);
-//					return ;
-//				}
 				
 				try {
 					//扩展点：TaskPoll
@@ -526,7 +518,7 @@ public class Spiderman {
 					if (cost >= times){ 
 						// 运行种子任务
 						feedSpider.run();
-						listener.onInfo(Thread.currentThread(), null, " shcedule FeedSpider per "+times+", now cost time ->"+cost);
+						listener.onInfo(Thread.currentThread(), null, " shcedule FeedSpider of Site->"+site.getName()+" per "+times+", now cost time ->"+cost);
 						start = System.currentTimeMillis();//重新计时
 					}
 				}

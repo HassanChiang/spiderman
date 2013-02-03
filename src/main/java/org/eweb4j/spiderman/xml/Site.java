@@ -232,84 +232,106 @@ public class Site {
 		
 		try {
 			destroyPoint(this.taskPollPointImpls, listener);
-			this.taskPollPointImpls.clear();
-			this.taskPollPointImpls = null;
+			if (this.taskPollPointImpls != null){
+				this.taskPollPointImpls.clear();
+				this.taskPollPointImpls = null;
+			}
 		}catch(Exception e){
 			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".TaskPollPlugin destroy failed.", e);
 		}
 		
 		try {
 			destroyPoint(this.beginPointImpls, listener);
-			this.beginPointImpls.clear();
-			this.beginPointImpls = null;
+			if (this.beginPointImpls != null){
+				this.beginPointImpls.clear();
+				this.beginPointImpls = null;
+			}
 		}catch(Exception e){
 			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".BeginPlugin destroy failed.", e);
 		}
 		try {
 			destroyPoint(this.fetchPointImpls, listener);
-			this.fetchPointImpls.clear();
-			this.fetchPointImpls = null;
+			if (this.fetchPointImpls != null) {
+				this.fetchPointImpls.clear();
+				this.fetchPointImpls = null;
+			}
 		}catch(Exception e){
 			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".FetchPlugin destroy failed.", e);
 		}
 		try{
 			destroyPoint(this.digPointImpls, listener);
-			this.digPointImpls.clear();
-			this.digPointImpls = null;
+			if (this.digPointImpls != null){
+				this.digPointImpls.clear();
+				this.digPointImpls = null;
+			}
 		}catch(Exception e){
 			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".DigPlugin destroy failed.", e);
 		}
 		try {
 			destroyPoint(this.dupRemovalPointImpls, listener);
-			this.dupRemovalPointImpls.clear();
-			this.dupRemovalPointImpls = null;
+			if (this.dupRemovalPointImpls != null){
+				this.dupRemovalPointImpls.clear();
+				this.dupRemovalPointImpls = null;
+			}
 		}catch(Exception e){
 			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".DupRemovalPlugin destroy failed.", e);
 		}
 		
 		try {
 			destroyPoint(this.taskSortPointImpls, listener);
-			this.taskSortPointImpls.clear();
-			this.taskSortPointImpls = null;
+			if (this.taskSortPointImpls != null){
+				this.taskSortPointImpls.clear();
+				this.taskSortPointImpls = null;
+			}
 		}catch(Exception e){
 			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".TaskSortPlugin destroy failed.", e);
 		}
 		
 		try {
 			destroyPoint(this.taskPushPointImpls, listener);
-			this.taskPushPointImpls.clear();
-			this.taskPollPointImpls = null;
+			if (this.taskPushPointImpls != null){
+				this.taskPushPointImpls.clear();
+				this.taskPollPointImpls = null;
+			}
 		}catch(Exception e){
 			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".TaskPushPlugin destroy failed.", e);
 		}
 		
 		try {
 			destroyPoint(this.targetPointImpls, listener);
-			this.targetPointImpls.clear();
-			this.targetPointImpls = null;
+			if (this.targetPointImpls != null){
+				this.targetPointImpls.clear();
+				this.targetPointImpls = null;
+			}
 		}catch(Exception e){
 			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".TargetPlugin destroy failed.", e);
 		}
 		
 		try{
 			destroyPoint(this.parsePointImpls, listener);
-			this.parsePointImpls.clear();
-			this.parsePointImpls = null;
+			if (this.parsePointImpls != null) {
+				this.parsePointImpls.clear();
+				this.parsePointImpls = null;
+			}
 		}catch(Exception e){
 			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".ParserPlugin destroy failed.", e);
 		}
 		try{
 			destroyPoint(this.pojoPointImpls, listener);
-			this.pojoPointImpls.clear();
-			this.pojoPointImpls = null;
+			if (this.pojoPointImpls != null) {
+				this.pojoPointImpls.clear();
+				this.pojoPointImpls = null;
+			}
 		}catch(Exception e){
 			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".PojoPlugin destroy failed.", e);
 		}
 		
 		try {
 			destroyPoint(this.endPointImpls, listener);
-			this.endPointImpls.clear();
-			this.endPointImpls = null;
+			if (this.endPointImpls != null) {
+				this.endPointImpls.clear();
+				this.endPointImpls = null;
+			}
 		}catch(Exception e){
 			listener.onError(Thread.currentThread(), null, "Site.name->"+this.getName()+".EndPlugin destroy failed.", e);
 		}
@@ -317,7 +339,6 @@ public class Site {
 		this.isStop = true;
 		
 //		this.queue = null;
-		
 //		this.counter = null;
 //		this.fetcher = null;
 	}
