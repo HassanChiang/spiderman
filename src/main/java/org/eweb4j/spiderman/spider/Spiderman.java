@@ -471,6 +471,8 @@ public class Spiderman {
 		}
 		
 		public void run() {
+			if (site.isStop)
+				return ;
 			// 运行种子任务
 			Task feedTask = new Task(new String(this.site.getUrl()), this.site, 10);
 			Spider feedSpider = new Spider();
@@ -480,6 +482,8 @@ public class Spiderman {
 			final float times = CommonUtil.toSeconds(this.site.getSchedule()) * 1000;
 			long start = System.currentTimeMillis();
 			while(true){
+				if (site.isStop)
+					break;
 				
 				try {
 					//扩展点：TaskPoll
@@ -514,6 +518,8 @@ public class Spiderman {
 				} catch (Exception e) {
 					listener.onError(Thread.currentThread(), null, e.toString(), e);
 				}finally{
+					if (site.isStop)
+						break;
 					long cost = System.currentTimeMillis() - start;
 					if (cost >= times){ 
 						// 运行种子任务
