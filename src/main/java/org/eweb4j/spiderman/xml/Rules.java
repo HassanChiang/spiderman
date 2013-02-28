@@ -5,7 +5,12 @@ import java.util.List;
 
 import org.eweb4j.util.xml.AttrTag;
 
-public class Urls {
+/**
+ * URL规则
+ * @author weiwei l.weiwei@163.com
+ * @date 2013-2-28 上午11:49:23
+ */
+public class Rules {
 
 	@AttrTag
 	private String policy = "and";

@@ -19,6 +19,7 @@ import org.eweb4j.spiderman.plugin.TargetPoint;
 import org.eweb4j.spiderman.plugin.TaskPushPoint;
 import org.eweb4j.spiderman.plugin.TaskSortPoint;
 import org.eweb4j.spiderman.task.Task;
+import org.eweb4j.spiderman.url.SourceUrlChecker;
 import org.eweb4j.spiderman.xml.Target;
 import org.eweb4j.util.CommonUtil;
 
@@ -138,6 +139,7 @@ public class Spider implements Runnable{
 			
 			if (task.site.isStop)
 				return ;
+			
 			//扩展点：target 确认当前的Task.url符不符合目标期望
 			Target target = null;
 			Collection<TargetPoint> targetPoints = task.site.targetPointImpls;
@@ -157,6 +159,13 @@ public class Spider implements Runnable{
 			
 			if (task.site.isStop)
 				return ;
+			
+			//检查sourceUrl
+			boolean isSourceUrlOk = SourceUrlChecker.checkSourceUrl(target.getSourceRules(), task.sourceUrl);
+			if (!isSourceUrlOk){
+				listener.onInfo(Thread.currentThread(), task, " spider stop cause the task->"+task+" is not match the rules");
+				return ;
+			}
 			
 			//扩展点：parse 把已确认好的目标页面解析成为Map对象
 			List<Map<String, Object>> models = null;

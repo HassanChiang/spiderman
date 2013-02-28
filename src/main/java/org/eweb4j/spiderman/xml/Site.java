@@ -53,7 +53,7 @@ public class Site {
 	
 	private Cookies cookies = new Cookies();//HTTP Cookie
 	
-	private Urls queueRules;//允许进入抓取队列的url规则
+	private Rules queueRules;//允许进入抓取队列的url规则
 	
 	private Targets targets ;//抓取目标
 	
@@ -168,11 +168,11 @@ public class Site {
 		this.plugins = plugins;
 	}
 
-	public Urls getQueueRules() {
+	public Rules getQueueRules() {
 		return queueRules;
 	}
 
-	public void setQueueRules(Urls queueRules) {
+	public void setQueueRules(Rules queueRules) {
 		this.queueRules = queueRules;
 	}
 

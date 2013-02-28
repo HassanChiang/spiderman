@@ -474,7 +474,7 @@ public class Spiderman {
 			if (site.isStop)
 				return ;
 			// 运行种子任务
-			Task feedTask = new Task(new String(this.site.getUrl()), this.site, 10);
+			Task feedTask = new Task(new String(this.site.getUrl()), null, this.site, 10);
 			Spider feedSpider = new Spider();
 			feedSpider.init(feedTask, listener);
 			feedSpider.run();
