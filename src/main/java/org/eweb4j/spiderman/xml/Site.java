@@ -18,6 +18,7 @@ import org.eweb4j.spiderman.plugin.TaskPushPoint;
 import org.eweb4j.spiderman.plugin.TaskSortPoint;
 import org.eweb4j.spiderman.spider.Counter;
 import org.eweb4j.spiderman.spider.SpiderListener;
+import org.eweb4j.spiderman.task.TaskDbServer;
 import org.eweb4j.spiderman.task.TaskQueue;
 import org.eweb4j.util.xml.AttrTag;
 import org.eweb4j.util.xml.Skip;
@@ -60,6 +61,8 @@ public class Site {
 	private Plugins plugins;//插件
 	
 	//------------------------------------------
+	@Skip
+	public TaskDbServer db = null;//每个网站都有属于自己的一个任务去重DB服务
 	@Skip
 	public ExecutorService pool;//每个网站都有属于自己的一个线程池
 	@Skip

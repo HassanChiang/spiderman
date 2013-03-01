@@ -66,6 +66,8 @@ public class Spider implements Runnable{
 			
 			if (result == null || result.getPage() == null || result.getPage().getContent() == null || result.getPage().getContent().trim().length() == 0) {
 				listener.onInfo(Thread.currentThread(), task, " spider stop cause the fetch result->+"+result+" of task["+task+"] is null");
+				//这时候认为完成了一个task，将其加入到db中标记已抓过的url
+				task.site.db.newDocID(task.url);
 				return ;
 			}
 			
@@ -134,6 +136,8 @@ public class Spider implements Runnable{
 			Page page = result.getPage();
 			if (page == null) {
 				listener.onInfo(Thread.currentThread(), task, " spider stop cause the fetch result.page is null");
+				//这时候认为完成了一个task，将其加入到db中标记已抓过的url
+				task.site.db.newDocID(task.url);
 				return ;
 			}
 			
@@ -151,7 +155,7 @@ public class Spider implements Runnable{
 			}
 			
 			if (target == null) {
-//				listener.onInfo(Thread.currentThread(), task, " spider stop cause the task is not the target");
+				listener.onInfo(Thread.currentThread(), task, " spider stop cause the task->"+task+" is not the target");
 				return ;
 			}
 			
@@ -167,6 +171,9 @@ public class Spider implements Runnable{
 				return ;
 			}
 			
+			//这时候认为完成了一个task，将其加入到db中标记已抓过的url
+			task.site.db.newDocID(task.url);
+			
 			//扩展点：parse 把已确认好的目标页面解析成为Map对象
 			List<Map<String, Object>> models = null;
 			Collection<ParsePoint> parsePoints = task.site.parsePointImpls;
@@ -177,8 +184,12 @@ public class Spider implements Runnable{
 				}
 			}
 			
-			if (models == null) 
+			if (models != null) {
+				listener.onInfo(Thread.currentThread(), task, "models.size -> " + models.size());
+			} else {
+				listener.onInfo(Thread.currentThread(), task, "models is null from task->" + task);
 				return ;
+			}
 			
 			for (Map<String,Object> model : models)
 				model.put("task_url", task.url);
@@ -186,6 +197,7 @@ public class Spider implements Runnable{
 			// 统计任务完成数+1
 			this.task.site.counter.plus();
 			listener.onParse(Thread.currentThread(), task, models);
+			listener.onInfo(Thread.currentThread(), task, "site -> " + task.site.getName() + " task parse finished count ->" + task.site.counter.getCount());
 			
 			if (task.site.isStop)
 				return ;
@@ -204,7 +216,7 @@ public class Spider implements Runnable{
 					pojos = point.mapping(task, cls, models, pojos);
 				}
 			}
-			if (pojos != null)
+			if (pojos != null) 
 				listener.onPojo(Thread.currentThread(), task, pojos);
 			
 			if (task.site.isStop)
