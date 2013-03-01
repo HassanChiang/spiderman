@@ -21,6 +21,8 @@ public class Target {
 	@AttrTag
 	private String cType;
 	
+	private Namespaces namespaces;
+	
 	/**
 	 * 来源页面的url规则
 	 */
@@ -42,6 +44,14 @@ public class Target {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public Namespaces getNamespaces() {
+		return this.namespaces;
+	}
+
+	public void setNamespaces(Namespaces namespaces) {
+		this.namespaces = namespaces;
 	}
 
 	public Rules getSourceRules() {
