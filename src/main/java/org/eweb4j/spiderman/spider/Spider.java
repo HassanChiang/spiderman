@@ -156,6 +156,8 @@ public class Spider implements Runnable{
 			
 			if (target == null) {
 				listener.onInfo(Thread.currentThread(), task, " spider stop cause the task->"+task+" is not the target");
+				//这时候认为完成了一个task，将其加入到db中标记已抓过的url
+				task.site.db.newDocID(task.url);
 				return ;
 			}
 			
