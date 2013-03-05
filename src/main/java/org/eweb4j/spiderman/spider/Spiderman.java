@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -37,6 +39,8 @@ import org.eweb4j.spiderman.task.Task;
 import org.eweb4j.spiderman.task.TaskQueue;
 import org.eweb4j.spiderman.xml.Plugin;
 import org.eweb4j.spiderman.xml.Plugins;
+import org.eweb4j.spiderman.xml.Seed;
+import org.eweb4j.spiderman.xml.Seeds;
 import org.eweb4j.spiderman.xml.Site;
 import org.eweb4j.spiderman.xml.Target;
 import org.eweb4j.util.CommonUtil;
@@ -302,6 +306,7 @@ public class Spiderman {
 				throw new Exception("site xml file error -> " + file.getAbsolutePath());
 			if ("1".equals(site.getEnable())){
 				sites.add(site);
+				listener.onInfo(Thread.currentThread(), null, "site.xmlfile->"+file.getAbsolutePath() + " loading... -> ok");
 			}
 		}
 	}
@@ -473,14 +478,29 @@ public class Spiderman {
 		public void run() {
 			if (site.isStop)
 				return ;
-			// 运行种子任务
-			Task feedTask = new Task(new String(this.site.getUrl()), null, this.site, 10);
-			Spider feedSpider = new Spider();
-			feedSpider.init(feedTask, listener);
-			feedSpider.run();
 			
-			final float times = CommonUtil.toSeconds(this.site.getSchedule()) * 1000;
-			long start = System.currentTimeMillis();
+			// 获取种子url
+			Seeds seeds = site.getSeeds();
+			Collection<String> seedUrls = new HashSet<String>();
+			if (seeds == null || seeds.getSeed() == null || seeds.getSeed().isEmpty()) {
+				seedUrls.add(this.site.getUrl());
+			}else{
+				for (Seed s : seeds.getSeed()){
+					seedUrls.add(s.getUrl());
+				}
+			}
+			
+			// 运行种子任务
+			for (String url : seedUrls) {
+				Task seedTask = new Task(new String(url), null, this.site, 10);
+				Spider seedSpider = new Spider();
+				seedSpider.init(seedTask, listener);
+//				this.site.pool.execute(seedSpider);
+				seedSpider.run();
+			}
+			
+//			final float times = CommonUtil.toSeconds(this.site.getSchedule()) * 1000;
+//			long start = System.currentTimeMillis();
 			while(true){
 				if (site.isStop)
 					break;
@@ -520,13 +540,19 @@ public class Spiderman {
 				}finally{
 					if (site.isStop)
 						break;
-					long cost = System.currentTimeMillis() - start;
-					if (cost >= times){ 
+//					long cost = System.currentTimeMillis() - start;
+//					if (cost >= times){ 
 						// 运行种子任务
-						feedSpider.run();
-						listener.onInfo(Thread.currentThread(), null, " shcedule FeedSpider of Site->"+site.getName()+" per "+times+", now cost time ->"+cost);
-						start = System.currentTimeMillis();//重新计时
-					}
+//						for (String url : seedUrls) {
+//							Task seedTask = new Task(new String(url), null, this.site, 10);
+//							Spider seedSpider = new Spider();
+//							seedSpider.init(seedTask, listener);
+//							this.site.pool.execute(seedSpider);
+//							seedSpider.run();
+//						}
+//						listener.onInfo(Thread.currentThread(), null, " shcedule FeedSpider of Site->"+site.getName()+" per "+times+", now cost time ->"+cost);
+//						start = System.currentTimeMillis();//重新计时
+//					}
 				}
 			}
 		}

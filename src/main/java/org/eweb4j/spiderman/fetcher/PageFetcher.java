@@ -11,4 +11,5 @@ package org.eweb4j.spiderman.fetcher;
 public interface PageFetcher {
 //	public void init(Site site) ;
 	public FetchResult fetch(String url) throws Exception ;
+	
 }

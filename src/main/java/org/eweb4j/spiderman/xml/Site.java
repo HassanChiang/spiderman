@@ -49,6 +49,8 @@ public class Site {
 	
 	@AttrTag
 	private String waitQueue = "1s";//当队列空的时候爬虫等待时间
+
+	private Seeds seeds ;
 	
 	private Headers headers = new Headers();//HTTP头
 	
@@ -185,6 +187,14 @@ public class Site {
 
 	public void setCharset(String charset) {
 		this.charset = charset;
+	}
+
+	public Seeds getSeeds() {
+		return this.seeds;
+	}
+
+	public void setSeeds(Seeds seeds) {
+		this.seeds = seeds;
 	}
 
 	public Headers getHeaders() {
