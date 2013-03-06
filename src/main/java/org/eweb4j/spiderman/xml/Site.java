@@ -33,6 +33,9 @@ public class Site {
 	private String url;//网站url
 	
 	@AttrTag
+	private String skipStatusCode;//设置忽略哪些状态码，例如设置为500,那么针对这个网站的访问请求，就算返回500状态码，依然会去解析相应内容
+	
+	@AttrTag
 	private String reqDelay = "200";//每个请求的延迟时间
 	
 	@AttrTag 
@@ -115,6 +118,14 @@ public class Site {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getSkipStatusCode() {
+		return this.skipStatusCode;
+	}
+
+	public void setSkipStatusCode(String skipStatusCode) {
+		this.skipStatusCode = skipStatusCode;
 	}
 
 	public String getEnable() {

@@ -170,6 +170,8 @@ public class Spider implements Runnable{
 			boolean isSourceUrlOk = SourceUrlChecker.checkSourceUrl(target.getSourceRules(), task.sourceUrl);
 			if (!isSourceUrlOk){
 				listener.onInfo(Thread.currentThread(), task, " spider stop cause the task->"+task+" is not match the rules");
+//				//如果是target且不是来源于sourceUrl，则将其和来源url一同加入到已访问列表里，下次同一个来源的同一个target url，将会被视为已访问过的。
+//				task.site.db.newDocID(task.url+task.sourceUrl);
 				return ;
 			}
 			
