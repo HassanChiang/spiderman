@@ -29,8 +29,13 @@ public class Site {
 	@AttrTag
 	private String name;//网站名
 	
+	private ValidHosts validHosts;//限制在同这些host里面抓取数据
+	
 	@AttrTag
 	private String url;//网站url
+	
+	@AttrTag
+	private String userAgent = "Spiderman[https://github.com/laiweiwei/spiderman]";//爬虫一些标识
 	
 	@AttrTag
 	private String skipStatusCode;//设置忽略哪些状态码，例如设置为500,那么针对这个网站的访问请求，就算返回500状态码，依然会去解析相应内容
@@ -111,6 +116,14 @@ public class Site {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public ValidHosts getValidHosts() {
+		return this.validHosts;
+	}
+
+	public void setValidHosts(ValidHosts validHosts) {
+		this.validHosts = validHosts;
+	}
 
 	public String getUrl() {
 		return url;
@@ -118,6 +131,14 @@ public class Site {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getUserAgent() {
+		return this.userAgent;
+	}
+
+	public void setUserAgent(String userAgent) {
+		this.userAgent = userAgent;
 	}
 
 	public String getSkipStatusCode() {

@@ -15,6 +15,9 @@ public class Rules {
 	@AttrTag
 	private String policy = "and";
 	
+	@AttrTag
+	private String isStrict ;
+	
 	private List<Rule> rule = new ArrayList<Rule>();
 
 	public String getPolicy() {
@@ -31,6 +34,14 @@ public class Rules {
 
 	public void setRule(List<Rule> rule) {
 		this.rule = rule;
+	}
+
+	public String getIsStrict() {
+		return this.isStrict;
+	}
+
+	public void setIsStrict(String isStrict) {
+		this.isStrict = isStrict;
 	}
 	
 }

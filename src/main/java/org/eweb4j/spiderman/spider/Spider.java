@@ -48,7 +48,6 @@ public class Spider implements Runnable{
 					task = point.confirmTask(task);
 				}
 			}
-			
 			if (task == null) return ;
 			
 			if (task.site.isStop)
@@ -59,15 +58,11 @@ public class Spider implements Runnable{
 			Collection<FetchPoint> fetchPoints = task.site.fetchPointImpls;
 			if (fetchPoints != null && !fetchPoints.isEmpty()){
 				for (FetchPoint point : fetchPoints){
-//					point.context(task);
 					result = point.fetch(task, result);
 				}
 			}
 			
 			if (result == null || result.getPage() == null || result.getPage().getContent() == null || result.getPage().getContent().trim().length() == 0) {
-				listener.onInfo(Thread.currentThread(), task, " spider stop cause the fetch result->+"+result+" of task["+task+"] is null");
-				//这时候认为完成了一个task，将其加入到db中标记已抓过的url
-				task.site.db.newDocID(task.url);
 				return ;
 			}
 			
@@ -81,7 +76,6 @@ public class Spider implements Runnable{
 			Collection<DigPoint> digPoints = task.site.digPointImpls;
 			if (digPoints != null && !digPoints.isEmpty()){
 				for (DigPoint point : digPoints){
-//					point.context(result, task);
 					newUrls = point.digNewUrls(result, task, newUrls);
 				}
 			}
@@ -99,7 +93,6 @@ public class Spider implements Runnable{
 			Collection<DupRemovalPoint> dupRemovalPoints = task.site.dupRemovalPointImpls;
 			if (dupRemovalPoints != null && !dupRemovalPoints.isEmpty()){
 				for (DupRemovalPoint point : dupRemovalPoints){
-//					point.context(task, newUrls);
 					validTasks = point.removeDuplicateTask(task, newUrls, validTasks);
 				}
 			}
@@ -121,6 +114,8 @@ public class Spider implements Runnable{
 				}
 			}
 			
+			this.listener.onTaskSort(Thread.currentThread(), task, validTasks);
+			
 			if (validTasks == null)
 				validTasks = new ArrayList<Task>();
 			
@@ -135,9 +130,6 @@ public class Spider implements Runnable{
 			
 			Page page = result.getPage();
 			if (page == null) {
-				listener.onInfo(Thread.currentThread(), task, " spider stop cause the fetch result.page is null");
-				//这时候认为完成了一个task，将其加入到db中标记已抓过的url
-				task.site.db.newDocID(task.url);
 				return ;
 			}
 			
@@ -149,15 +141,11 @@ public class Spider implements Runnable{
 			Collection<TargetPoint> targetPoints = task.site.targetPointImpls;
 			if (targetPoints != null && !targetPoints.isEmpty()){
 				for (TargetPoint point : targetPoints){
-//					point.context(task);
 					target = point.confirmTarget(task, target);
 				}
 			}
 			
 			if (target == null) {
-				listener.onInfo(Thread.currentThread(), task, " spider stop cause the task->"+task+" is not the target");
-				//这时候认为完成了一个task，将其加入到db中标记已抓过的url
-				task.site.db.newDocID(task.url);
 				return ;
 			}
 			
@@ -169,29 +157,19 @@ public class Spider implements Runnable{
 			//检查sourceUrl
 			boolean isSourceUrlOk = SourceUrlChecker.checkSourceUrl(target.getSourceRules(), task.sourceUrl);
 			if (!isSourceUrlOk){
-				listener.onInfo(Thread.currentThread(), task, " spider stop cause the task->"+task+" is not match the rules");
-//				//如果是target且不是来源于sourceUrl，则将其和来源url一同加入到已访问列表里，下次同一个来源的同一个target url，将会被视为已访问过的。
-//				task.site.db.newDocID(task.url+task.sourceUrl);
 				return ;
 			}
-			
-			//这时候认为完成了一个task，将其加入到db中标记已抓过的url
-			task.site.db.newDocID(task.url);
 			
 			//扩展点：parse 把已确认好的目标页面解析成为Map对象
 			List<Map<String, Object>> models = null;
 			Collection<ParsePoint> parsePoints = task.site.parsePointImpls;
 			if (parsePoints != null && !parsePoints.isEmpty()){
 				for (ParsePoint point : parsePoints){
-//					point.context(task, target, page);
 					models = point.parse(task, target, page, models);
 				}
 			}
 			
-			if (models != null) {
-				listener.onInfo(Thread.currentThread(), task, "models.size -> " + models.size());
-			} else {
-				listener.onInfo(Thread.currentThread(), task, "models is null from task->" + task);
+			if (models == null) {
 				return ;
 			}
 			
@@ -216,7 +194,6 @@ public class Spider implements Runnable{
 			Collection<PojoPoint> pojoPoints = task.site.pojoPointImpls;
 			if (pojoPoints != null && !pojoPoints.isEmpty()){
 				for (PojoPoint point : pojoPoints){
-//					point.context();
 					pojos = point.mapping(task, cls, models, pojos);
 				}
 			}
@@ -230,7 +207,6 @@ public class Spider implements Runnable{
 			Collection<EndPoint> endPoints = task.site.endPointImpls;
 			if (endPoints != null && !endPoints.isEmpty()){
 				for (EndPoint point : endPoints){
-//					point.context(task, models);
 					models = point.complete(task, models);
 				}
 			}

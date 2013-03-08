@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -499,8 +498,8 @@ public class Spiderman {
 				seedSpider.run();
 			}
 			
-//			final float times = CommonUtil.toSeconds(this.site.getSchedule()) * 1000;
-//			long start = System.currentTimeMillis();
+			final float times = CommonUtil.toSeconds(this.site.getSchedule()) * 1000;
+			long start = System.currentTimeMillis();
 			while(true){
 				if (site.isStop)
 					break;
@@ -540,19 +539,21 @@ public class Spiderman {
 				}finally{
 					if (site.isStop)
 						break;
-//					long cost = System.currentTimeMillis() - start;
-//					if (cost >= times){ 
-						// 运行种子任务
-//						for (String url : seedUrls) {
-//							Task seedTask = new Task(new String(url), null, this.site, 10);
-//							Spider seedSpider = new Spider();
-//							seedSpider.init(seedTask, listener);
-//							this.site.pool.execute(seedSpider);
-//							seedSpider.run();
-//						}
-//						listener.onInfo(Thread.currentThread(), null, " shcedule FeedSpider of Site->"+site.getName()+" per "+times+", now cost time ->"+cost);
-//						start = System.currentTimeMillis();//重新计时
-//					}
+					if (site.pool == null)
+						break;
+					
+					long cost = System.currentTimeMillis() - start;
+					if (cost >= times){ 
+//						 运行种子任务
+						for (String url : seedUrls) {
+							Task seedTask = new Task(new String(url), null, this.site, 10);
+							Spider seedSpider = new Spider();
+							seedSpider.init(seedTask, listener);
+							seedSpider.run();
+						}
+						listener.onInfo(Thread.currentThread(), null, " shcedule FeedSpider of Site->"+site.getName()+" per "+times+", now cost time ->"+cost);
+						start = System.currentTimeMillis();//重新计时
+					}
 				}
 			}
 		}
