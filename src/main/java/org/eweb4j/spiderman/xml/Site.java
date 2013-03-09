@@ -38,6 +38,9 @@ public class Site {
 	private String userAgent = "Spiderman[https://github.com/laiweiwei/spiderman]";//爬虫一些标识
 	
 	@AttrTag
+	private String includeHttps; //是否抓取https页
+	
+	@AttrTag
 	private String skipStatusCode;//设置忽略哪些状态码，例如设置为500,那么针对这个网站的访问请求，就算返回500状态码，依然会去解析相应内容
 	
 	@AttrTag
@@ -131,6 +134,14 @@ public class Site {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getIncludeHttps() {
+		return includeHttps;
+	}
+
+	public void setIncludeHttps(String includeHttps) {
+		this.includeHttps = includeHttps;
 	}
 
 	public String getUserAgent() {
