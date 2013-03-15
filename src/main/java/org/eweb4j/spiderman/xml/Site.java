@@ -35,6 +35,9 @@ public class Site {
 	private ValidHosts validHosts;//限制在同这些host里面抓取数据
 	
 	@AttrTag
+	private String isDupRemovalStrict;//是否严格去掉重复的URL，即已访问过一次的URL不会再被访问，若否，就算是重复的URL，只要它的来源URL不同，都会被访问
+	
+	@AttrTag
 	private String url;//网站url
 	
 	@AttrTag
@@ -137,6 +140,14 @@ public class Site {
 
 	public void setValidHosts(ValidHosts validHosts) {
 		this.validHosts = validHosts;
+	}
+
+	public String getIsDupRemovalStrict() {
+		return this.isDupRemovalStrict;
+	}
+
+	public void setIsDupRemovalStrict(String isDupRemovalStrict) {
+		this.isDupRemovalStrict = isDupRemovalStrict;
 	}
 
 	public String getUrl() {
