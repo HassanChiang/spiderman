@@ -20,6 +20,7 @@ import org.eweb4j.spiderman.plugin.TaskPushPoint;
 import org.eweb4j.spiderman.plugin.TaskSortPoint;
 import org.eweb4j.spiderman.task.Task;
 import org.eweb4j.spiderman.url.SourceUrlChecker;
+import org.eweb4j.spiderman.xml.Field;
 import org.eweb4j.spiderman.xml.Rules;
 import org.eweb4j.spiderman.xml.Target;
 import org.eweb4j.util.CommonUtil;
@@ -137,7 +138,7 @@ public class Spider implements Runnable{
 			if (task.site.isStop)
 				return ;
 			
-			//扩展点：target 确认当前的Task.url符不符合目标期望
+			//扩展点：target 确认是否有目标配置匹配当前URL
 			Target target = null;
 			Collection<TargetPoint> targetPoints = task.site.targetPointImpls;
 			if (targetPoints != null && !targetPoints.isEmpty()){
@@ -150,14 +151,16 @@ public class Spider implements Runnable{
 				return ;
 			}
 			
+			task.target = target;
+			
 			this.listener.onTargetPage(Thread.currentThread(), task, page);
 			
 			if (task.site.isStop)
 				return ;
 			
 			//检查sourceUrl
-			Rules rules = target.getSourceRules();
-			boolean isSourceUrlOk = SourceUrlChecker.checkSourceUrl(rules, task.sourceUrl, rules.getPolicy());
+			Rules rules = task.site.getTargets().getSourceRules();
+			boolean isSourceUrlOk = SourceUrlChecker.checkSourceUrl(rules, task.sourceUrl);
 			if (!isSourceUrlOk){
 				return ;
 			}
@@ -176,6 +179,11 @@ public class Spider implements Runnable{
 			}
 			
 			for (Map<String,Object> model : models){
+				for (Field f : target.getModel().getField()){
+					//去掉那些被定义成 变量 的field
+					if ("1".equals(f.getIsArg()) || "true".equals(f.getIsArg()))
+						model.remove(f.getName());
+				}
 				model.put("task_url", task.url);
 				model.put("source_url", task.sourceUrl);
 			}

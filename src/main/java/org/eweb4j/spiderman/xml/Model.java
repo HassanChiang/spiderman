@@ -6,9 +6,23 @@ import java.util.List;
 import org.eweb4j.util.xml.AttrTag;
 
 public class Model {
-
+	
 	@AttrTag
 	private String clazz ;
+	
+	/**
+	 * 页面的 contentType
+	 */
+	@AttrTag
+	private String cType;
+	
+	/**
+	 * 如果页面是html类型，是否强制使用XML的解析器来解析xpath
+	 */
+	@AttrTag
+	private String isForceUseXmlParser;
+	
+	private Namespaces namespaces;
 	
 	@AttrTag
 	private String isArray ;
@@ -26,6 +40,30 @@ public class Model {
 		this.clazz = clazz;
 	}
 
+	public Namespaces getNamespaces() {
+		return this.namespaces;
+	}
+
+	public void setNamespaces(Namespaces namespaces) {
+		this.namespaces = namespaces;
+	}
+	
+	public String getIsForceUseXmlParser() {
+		return isForceUseXmlParser;
+	}
+
+	public void setIsForceUseXmlParser(String isForceUseXmlParser) {
+		this.isForceUseXmlParser = isForceUseXmlParser;
+	}
+
+	public String getCType() {
+		return this.cType;
+	}
+
+	public void setCType(String cType) {
+		this.cType = cType;
+	}
+	
 	public List<Field> getField() {
 		return field;
 	}
@@ -50,4 +88,36 @@ public class Model {
 		this.xpath = xpath;
 	}
 	
+	public boolean isArrayField(String fieldName){
+		for (Field f : this.field){
+			if (!fieldName.equals(f.getName()))
+				continue;
+			if ("1".equals(f.getIsArray()))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean isAlsoParseInNextPageField(String fieldName){
+		for (Field f : this.field){
+			if (!fieldName.equals(f.getName()))
+				continue;
+			if ("1".equals(f.getIsAlsoParseInNextPage()))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	public List<Field> getIsAlsoParseInNextPageFields(){
+		List<Field> fields = new ArrayList<Field>();
+		for (Field f : this.field){
+			if (!"1".equals(f.getIsAlsoParseInNextPage()))
+				continue;
+			fields.add(f);
+		}
+		
+		return fields;
+	}
 }
